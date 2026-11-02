@@ -250,6 +250,19 @@ svg.doll .om{opacity:0}
   .fig.jolt{animation:jolt .38s ease-out}
   @keyframes jolt{0%{transform:none}35%{transform:translateY(-12%) rotate(-4deg)}100%{transform:none}}
 }
+/* Guía de instalación */
+kbd{font-family:var(--body); font-weight:800; font-size:.92em; background:var(--card); color:var(--ink); border:1px solid var(--line); border-bottom-width:2px; border-radius:6px; padding:0 6px; white-space:nowrap}
+.guide{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; text-align:left; width:100%}
+.gcard{background:var(--card); border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:8px; box-shadow:0 1px 0 var(--shadow), 0 4px 14px var(--shadow); min-width:0}
+.gcard h3{font-size:17px; color:var(--plum); display:flex; align-items:center; gap:8px}
+.gcard h3 small{font-size:12px; color:var(--muted); font-weight:700}
+.gcard ol{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px; font-size:15px}
+.gcard.first{order:-1; outline:2px solid var(--plum)}
+.guide .warn{grid-column:1/-1; background:var(--mustard-soft); border-radius:10px; padding:12px 14px; font-size:14.5px; margin:0}
+.urlbox{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.urlbox code{font-size:14px; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 10px; user-select:all; overflow-wrap:anywhere; min-width:0}
+.install-view{display:flex; flex-direction:column; gap:14px}
+.install-view p{margin:0; max-width:62ch}
 footer{margin-top:36px; font-size:12.5px; color:var(--muted); max-width:60ch}
 @media (prefers-reduced-motion:no-preference){
   .scene,.inter,.frases{animation:in .35s ease-out}
@@ -906,6 +919,7 @@ function renderMenu(){
       <button class="btn" id="m-new">Nueva partida</button>
       <button class="btn ghost" id="m-cast">El reparto y los créditos</button>
       <button class="btn ghost" id="m-frases">Frases célebres</button>
+      <button class="btn ghost" id="m-install">Instalar en el celular</button>
       <button class="btn ghost" id="m-replay">Ver la entrada otra vez</button>
       ${best ? `<span class="best">Tu mejor marca: ${best} de ${QS.length}</span>` : ""}
     </div>
@@ -914,6 +928,7 @@ function renderMenu(){
   document.getElementById("m-new").onclick = start;
   document.getElementById("m-cast").onclick = () => go("intro");
   document.getElementById("m-frases").onclick = () => go("frases");
+  document.getElementById("m-install").onclick = () => go("install");
   document.getElementById("m-replay").onclick = () => { menuSeen = false; render(); };
   const en = document.getElementById("enter");
   if (en) en.onclick = () => {
@@ -991,6 +1006,52 @@ async function playEntrance(my){
   finish();
 }
 
+const APP_URL = "https://qualmarcos.github.io/y-ahora-que-betty/";
+function installGuide(first){
+  return `<div class="guide">
+    <div class="gcard ${first === "android" ? "first" : ""}">
+      <h3>Android <small>con Chrome</small></h3>
+      <ol>
+        <li>Abre el enlace del juego en <kbd>Chrome</kbd>.</li>
+        <li>Toca el menú <kbd>⋮</kbd> arriba a la derecha.</li>
+        <li>Elige <kbd>Instalar app</kbd> o <kbd>Agregar a pantalla principal</kbd>.</li>
+        <li>Confirma con <kbd>Instalar</kbd>.</li>
+        <li>Abre el juego desde el ícono con la cara de Betty.</li>
+      </ol>
+    </div>
+    <div class="gcard ${first === "ios" ? "first" : ""}">
+      <h3>iPhone y iPad <small>con Safari</small></h3>
+      <ol>
+        <li>Abre el enlace del juego en <kbd>Safari</kbd>.</li>
+        <li>Toca <kbd>Compartir</kbd>, el cuadrado con la flecha hacia arriba (abajo en iPhone, arriba en iPad).</li>
+        <li>Desliza y elige <kbd>Agregar a pantalla de inicio</kbd>.</li>
+        <li>Toca <kbd>Agregar</kbd>, arriba a la derecha.</li>
+        <li>Abre el juego desde el ícono con la cara de Betty.</li>
+      </ol>
+    </div>
+    <p class="warn">Si abriste el enlace dentro de WhatsApp, Instagram o Facebook, primero ábrelo en Chrome o Safari. Esos navegadores internos no permiten instalar apps.</p>
+  </div>`;
+}
+function urlBox(){
+  return `<div class="urlbox"><code id="appurl">${APP_URL}</code><button class="btn small" id="copyurl">Copiar enlace</button></div>`;
+}
+function wireUrlBox(){
+  const b = document.getElementById("copyurl"); if (!b) return;
+  b.onclick = async () => {
+    try { await navigator.clipboard.writeText(APP_URL); b.textContent = "Enlace copiado"; }
+    catch(e){ const r = document.createRange(); r.selectNodeContents(document.getElementById("appurl")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); b.textContent = "Cópialo a mano"; }
+  };
+}
+function renderInstall(){
+  app.innerHTML = `<section class="install-view">
+    <h2>Instala el juego en tu celular</h2>
+    <p>Instalado, <i>¿Y ahora qué, Betty?</i> se abre en pantalla completa desde su propio ícono, con la cara de Betty, y funciona sin conexión.</p>
+    ${urlBox()}
+    ${installGuide(/iPhone|iPad|iPod/.test(navigator.userAgent) ? "ios" : /Android/.test(navigator.userAgent) ? "android" : "")}
+  </section>`;
+  wireUrlBox();
+}
+
 function topbar(){ return `<div class="topbar"><button class="btn ghost small" id="tomenu">☰ Menú</button><span class="brand">¿Y ahora qué, Betty?</span></div>`; }
 
 /* ================= Vistas ================= */
@@ -1001,6 +1062,7 @@ function render(){
   else if (st.view === "game") renderGame();
   else if (st.view === "inter") renderInter();
   else if (st.view === "frases") renderFrases();
+  else if (st.view === "install") renderInstall();
   else renderEnd();
   app.insertAdjacentHTML("afterbegin", topbar());
   document.getElementById("tomenu").onclick = () => { st.view = "menu"; render(); window.scrollTo({top:0}); };
@@ -1243,9 +1305,8 @@ function renderGate(done){
   if (done) steps = `<p class="warn"><b>¡Listo!</b> Busca el ícono de Betty en tu pantalla de inicio y abre el juego desde ahí.</p>`;
   else if (IN_APP_BROWSER || IOS_NOT_SAFARI) steps = `<p class="warn">Este navegador no permite instalar apps. Copia el enlace y ábrelo en <b>${IS_IOS ? "Safari" : "Chrome"}</b>.</p>
       <div class="cta-row"><button class="btn" id="copy">Copiar enlace</button></div>`;
-  else if (IS_IOS) steps = `<ol><li>Toca <kbd>Compartir</kbd>, el cuadrado con la flecha hacia arriba.</li><li>Baja y elige <kbd>Agregar a pantalla de inicio</kbd>.</li><li>Toca <kbd>Agregar</kbd> y abre el juego desde el ícono de Betty.</li></ol>`;
-  else steps = `${installEvt ? `<div class="cta-row"><button class="btn" id="install">Instalar el juego</button></div><p class="situ">O desde el menú:</p>` : ""}
-      <ol><li>Toca el menú <kbd>⋮</kbd> arriba a la derecha.</li><li>Elige <kbd>Instalar app</kbd> o <kbd>Agregar a pantalla principal</kbd>.</li><li>Abre el juego desde el ícono de Betty.</li></ol>`;
+  else steps = `${installEvt ? `<div class="cta-row"><button class="btn" id="install">Instalar el juego</button></div>` : ""}
+      ${installGuide(IS_IOS ? "ios" : "android")}`;
   app.innerHTML = `<section class="gate">
     <div class="hero-say">${fig("betty", done ? "happy" : "neutral", "talk")}<div class="bub"><span class="who">Betty</span><span class="tx" id="gsay"></span></div></div>
     <h2>Instala el juego para jugar</h2>
