@@ -1,7 +1,7 @@
 // Service worker: guarda el juego para que funcione sin conexión.
-const CACHE = "betty-v6";
+const CACHE = "betty-v7";
 const CORE = ["./", "./index.html", "./manifest.webmanifest",
-  "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./icons/apple-touch-icon.png"];
+  "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon-maskable-512.png", "./icons/apple-touch-icon-v2.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
