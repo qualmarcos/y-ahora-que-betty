@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Juego de preguntas con bonequitos y diálogos: adivina qué pasa después en Yo soy Betty, la fea.">
-<meta name="theme-color" content="#6b1f4f">
+<meta name="theme-color" content="#0e0c10">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,53 +15,43 @@
 <title>¿Y ahora qué, Betty?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,800;1,6..96,500&family=Caveat:wght@500;700&family=Nunito+Sans:wght@400;600;800&family=Special+Elite&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,800;1,6..96,500&family=Caveat:wght@500;700&family=Nunito+Sans:wght@400;600;800&family=Special+Elite&family=Shadows+Into+Light&display=swap">
 <style>
 /* Layout: el diario de Betty — cuaderno rayado con margen rojo; escenas como conversaciones que se escriben solas, con bonequitos animados. */
 :root{
-  --paper:#fbf8ef; --line:#c9d6ea; --margin:#e08a8a;
-  --ink:#2a2233; --muted:#6c6276;
-  --plum:#6b1f4f; --plum-soft:#f1e3ec;
-  --mustard:#a8740a; --mustard-soft:#f6ead0;
-  --ok:#2f7a4b; --ok-soft:#e0f0e5; --bad:#b03a3a; --bad-soft:#f7e1e1;
-  --card:#ffffff; --shadow:rgba(60,30,60,.12); --letter:#fffdf6;
+  --paper:#0e0c10; --line:#3a3340; --margin:#5c2b33;
+  --ink:#f3efe8; --muted:#aba2a8;
+  --plum:#e0a84a; --plum-soft:#2b2216;
+  --mustard:#b7c9ee; --mustard-soft:#1b2232;
+  --ok:#86d7a2; --ok-soft:#18301f; --bad:#f19494; --bad-soft:#3a1d20;
+  --card:#1a171d; --shadow:rgba(0,0,0,.5);
+  --bubble:#f6f1e6; --bubble-ink:#231d26; --bubble-line:#ddd2bf; --bubble2:#e3eafb; --brown:#8a5a2b; --brown2:#3a4f86;
+  --diary:#f6efdc; --diary-ink:#2a2233; --diary-muted:#7a6f68; --diary-line:#c9d6ea; --diary-margin:#e08a8a; --letter:#f7f3e8;
+  --chalk:#f4f7ff; --glow:rgba(170,195,255,.55);
   --display:"Bodoni Moda","Didot","Times New Roman",serif;
   --hand:"Caveat","Segoe Print","Bradley Hand",cursive;
+  --chalkfont:"Shadows Into Light","Caveat","Bradley Hand",cursive;
   --type:"Special Elite","Courier New",monospace;
   --body:"Nunito Sans","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --paper:#1c1820; --line:#2d3346; --margin:#7a3a44;
-  --ink:#efe8f2; --muted:#a99db3;
-  --plum:#e48bc0; --plum-soft:#3a2234;
-  --mustard:#e8b44a; --mustard-soft:#3a3020;
-  --ok:#7fd29d; --ok-soft:#1f3527; --bad:#f08f8f; --bad-soft:#3d2224;
-  --card:#25202b; --shadow:rgba(0,0,0,.4); --letter:#2a2620; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --paper:#1c1820; --line:#2d3346; --margin:#7a3a44;
-  --ink:#efe8f2; --muted:#a99db3;
-  --plum:#e48bc0; --plum-soft:#3a2234;
-  --mustard:#e8b44a; --mustard-soft:#3a3020;
-  --ok:#7fd29d; --ok-soft:#1f3527; --bad:#f08f8f; --bad-soft:#3d2224;
-  --card:#25202b; --shadow:rgba(0,0,0,.4); --letter:#2a2620; color-scheme:dark}
+/* Una sola identidad, oscura como la presentación de la novela. */
 
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{
   background:var(--paper); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.55;
-  background-image:
-    linear-gradient(90deg, transparent 0 46px, var(--margin) 46px 48px, transparent 48px),
-    repeating-linear-gradient(to bottom, transparent 0 31px, var(--line) 31px 32px);
-  min-height:100vh;
+  background-image:radial-gradient(ellipse at 50% -10%, #2a2230 0%, transparent 60%);
+  background-attachment:fixed; min-height:100vh;
 }
-.wrap{max-width:780px; margin:0 auto; padding-block:28px 64px;
+.wrap{max-width:780px; margin:0 auto; padding-block:64px 64px;
   padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
-@media (min-width:700px){.wrap{padding-left:72px}}
+
 a{color:var(--plum)}
 
 header.mast{display:flex; flex-direction:column; gap:4px; margin-bottom:22px}
 .eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:800}
-h1{font-family:var(--display); font-weight:800; font-size:clamp(34px,7vw,58px); line-height:1.02; margin:0; color:var(--plum); text-wrap:balance}
-h1 em{font-style:italic; font-weight:500; color:var(--ink)}
+h1{font-family:var(--chalkfont); font-weight:400; font-size:clamp(40px,9vw,66px); line-height:1.05; margin:0; color:var(--chalk); text-shadow:0 0 14px var(--glow), 0 0 2px var(--glow); text-wrap:balance}
 h2{font-family:var(--display); font-weight:800; font-size:26px; margin:0; text-wrap:balance}
 h3{margin:0; font-size:15px}
 
@@ -119,13 +109,12 @@ svg.doll .om{opacity:0}
 .ln{display:flex; gap:10px; align-items:flex-end}
 .ln.r{flex-direction:row-reverse}
 .ln .fig{flex:0 0 62px}
-.bub{position:relative; min-width:0; max-width:min(78%,480px); background:var(--paper); border:2px solid var(--line); border-radius:16px; border-bottom-left-radius:4px; padding:8px 13px 9px; font-size:15.5px; line-height:1.4}
+.bub{position:relative; min-width:0; max-width:min(78%,480px); background:var(--bubble); color:var(--bubble-ink); border:2px solid var(--bubble-line); border-radius:16px; border-bottom-left-radius:4px; padding:8px 13px 9px; font-size:15.5px; line-height:1.4}
 .ln.r .bub{border-bottom-left-radius:16px; border-bottom-right-radius:4px}
-.bub .who{display:block; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:800; color:var(--plum); margin-bottom:2px}
-.bub .star{display:block; margin-top:4px; font-size:11px; font-weight:800; color:var(--mustard); letter-spacing:.04em}
-.dlg.after .bub{background:var(--mustard-soft); border-color:transparent}
-.dlg.after .bub .who{color:var(--mustard)}
-.hero-say .bub{background:var(--card)}
+.bub .who{display:block; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:800; color:var(--brown); margin-bottom:2px}
+.bub .star{display:block; margin-top:4px; font-size:11px; font-weight:800; color:var(--brown); letter-spacing:.04em}
+.dlg.after .bub{background:var(--bubble2); border-color:transparent}
+.dlg.after .bub .who{color:var(--brown2)}
 .caret::after{content:"▌"; color:var(--plum); margin-left:1px; animation:caret .8s steps(1) infinite}
 @keyframes caret{50%{opacity:0}}
 .typing{display:inline-flex; gap:4px; padding:4px 2px}
@@ -171,25 +160,24 @@ svg.doll .om{opacity:0}
 
 /* ---------- Páginas del diario y la carta ---------- */
 .inter{display:flex; flex-direction:column; gap:16px}
-.page{position:relative; background:var(--card); border-radius:6px 14px 14px 6px; box-shadow:0 1px 0 var(--shadow), 0 10px 30px var(--shadow);
+.page{position:relative; background-color:var(--diary); color:var(--diary-ink); border-radius:6px 14px 14px 6px; box-shadow:0 1px 0 var(--shadow), 0 10px 30px var(--shadow);
   padding:22px 20px 26px 58px;
   background-image:
-    linear-gradient(90deg, transparent 0 40px, var(--margin) 40px 42px, transparent 42px),
-    repeating-linear-gradient(to bottom, transparent 0 33px, var(--line) 33px 34px);
+    linear-gradient(90deg, transparent 0 40px, var(--diary-margin) 40px 42px, transparent 42px),
+    repeating-linear-gradient(to bottom, transparent 0 33px, var(--diary-line) 33px 34px);
   background-position:0 14px}
-.page .date{font-family:var(--hand); font-size:22px; color:var(--muted); line-height:34px; margin:0}
-.page .entry{font-family:var(--hand); font-size:clamp(22px,4.6vw,27px); line-height:34px; margin:0; white-space:pre-wrap; color:var(--ink); min-height:136px}
+.page .date{font-family:var(--hand); font-size:22px; color:var(--diary-muted); line-height:34px; margin:0}
+.page .entry{font-family:var(--hand); font-size:clamp(22px,4.6vw,27px); line-height:34px; margin:0; white-space:pre-wrap; color:var(--diary-ink); min-height:136px}
 .page .writer{position:absolute; right:12px; top:-46px; width:80px}
 .quote{border-left:4px solid var(--plum); background:var(--plum-soft); padding:12px 14px; border-radius:0 10px 10px 0}
 .quote p{margin:0; font-family:var(--hand); font-size:28px; line-height:1.15; color:var(--plum)}
 .quote small{display:block; margin-top:6px; font-size:12.5px; color:var(--muted)}
 .letter{background:var(--letter); border:1px solid var(--line); box-shadow:0 2px 0 var(--shadow), 0 14px 34px var(--shadow); padding:26px 22px; transform:rotate(-.6deg); border-radius:2px}
-.letter .memo{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; font-family:var(--type); font-size:13px; color:var(--muted); border-bottom:1px dashed var(--line); padding-bottom:10px; margin-bottom:14px}
-.letter .body{font-family:var(--type); font-size:15.5px; line-height:1.7; white-space:pre-wrap; margin:0; min-height:240px; color:var(--ink)}
+.letter .memo{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; font-family:var(--type); font-size:13px; color:var(--diary-muted); border-bottom:1px dashed var(--line); padding-bottom:10px; margin-bottom:14px}
+.letter .body{font-family:var(--type); font-size:15.5px; line-height:1.7; white-space:pre-wrap; margin:0; min-height:240px; color:var(--diary-ink)}
 .credit-note{font-size:13px; color:var(--muted); margin:0; max-width:62ch}
 .inter-head{display:flex; align-items:flex-end; gap:12px}
 .inter-head .fig{flex:0 0 74px}
-.inter-head .bub{background:var(--card)}
 
 /* ---------- Frases célebres ---------- */
 .frases{display:flex; flex-direction:column; gap:16px}
@@ -224,6 +212,32 @@ svg.doll .om{opacity:0}
 .install b{color:var(--plum)}
 .install ol{margin:0; padding-left:20px; font-size:14.5px}
 .install .row{display:flex; justify-content:flex-end}
+/* ---------- Menú inicial y entrada a Ecomoda ---------- */
+.mbtn{position:fixed; z-index:20; top:calc(env(safe-area-inset-top,0px) + 12px); right:calc(env(safe-area-inset-right,0px) + 12px); width:44px; height:44px; border-radius:50%; border:2px solid var(--plum); background:var(--card); color:var(--plum); font-size:20px; line-height:1; cursor:pointer; display:grid; place-items:center}
+.mbtn[aria-pressed="false"]{opacity:.55}
+.mbtn[aria-pressed="false"]::after{content:""; position:absolute; width:28px; height:2px; background:var(--plum); transform:rotate(-45deg)}
+.mbtn:focus-visible{outline:3px solid var(--mustard); outline-offset:3px}
+.topbar{display:flex; align-items:center; gap:12px; margin:-40px 0 18px; padding-right:52px; flex-wrap:wrap}
+.topbar .brand{font-family:var(--chalkfont); font-size:24px; color:var(--chalk); text-shadow:0 0 10px var(--glow)}
+.menu{display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; margin-top:-36px}
+.stage{position:relative; width:100%; aspect-ratio:160/110; border-radius:14px; overflow:hidden; box-shadow:0 10px 40px var(--shadow)}
+.stage svg.bld{position:absolute; inset:0; width:100%; height:100%}
+.walker{position:absolute; bottom:7%; left:-14%; width:11%}
+.walker .say{position:absolute; bottom:100%; left:40%; width:max-content; max-width:min(230px,58vw); background:var(--bubble); color:var(--bubble-ink); font-size:clamp(11px,2.4vw,14px); padding:6px 10px; border-radius:12px; border-bottom-left-radius:3px; line-height:1.3; text-align:left; box-shadow:0 4px 14px var(--shadow)}
+.door{transform-box:fill-box; transition:transform .55s ease}
+.doors-open .doorL{transform:translateX(-96%)}
+.doors-open .doorR{transform:translateX(96%)}
+.menu .tag{color:var(--muted); margin:0; max-width:46ch}
+.menu-btns{display:flex; flex-direction:column; gap:10px; width:min(100%,340px)}
+.menu-btns .btn{width:100%}
+.splash-btn{position:absolute; left:50%; top:44%; transform:translate(-50%,-50%); font-size:18px; padding:14px 26px; box-shadow:0 6px 24px rgba(0,0,0,.55)}
+.splash-btn:hover{transform:translate(-50%,-53%)}
+.skip-intro{position:absolute; right:10px; bottom:10px}
+@media (prefers-reduced-motion:no-preference){
+  .walker.walking .fig{animation:walk .34s ease-in-out infinite alternate}
+  @keyframes walk{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-8%) rotate(4deg)}}
+  .menu-btns:not([hidden]),.menu .tag:not([hidden]){animation:in .5s ease-out}
+}
 footer{margin-top:36px; font-size:12.5px; color:var(--muted); max-width:60ch}
 @media (prefers-reduced-motion:no-preference){
   .scene,.inter,.frases{animation:in .35s ease-out}
@@ -246,13 +260,10 @@ img{max-width:100%}
 .gate kbd{font-family:var(--body); font-weight:800; background:var(--card); border:1px solid var(--line); border-radius:6px; padding:1px 6px}
 </style>
 
+<button id="music" class="mbtn" aria-pressed="false" aria-label="Encender la música" title="Encender la música">♪</button>
 </head>
 <body>
 <div class="wrap">
-  <header class="mast">
-    <span class="eyebrow">Un juego de la novela · Ecomoda, Bogotá</span>
-    <h1>¿Y ahora qué, <em>Betty</em>?</h1>
-  </header>
   <main id="app"></main>
   <footer>Homenaje de fans a <i>Yo soy Betty, la fea</i>, telenovela creada y escrita por Fernando Gaitán y producida por RCN Televisión (Colombia, 1999–2001). Personajes, historia y frases célebres pertenecen a sus autores y a RCN Televisión. Sin afiliación oficial.</footer>
 </div>
@@ -673,7 +684,7 @@ const RANKS = [
 
 /* ================= Motor de texto que se escribe solo ================= */
 const app = document.getElementById("app");
-let st = {view:"intro", i:0, score:0, picked:null, order:[], log:[], qi:0};
+let st = {view:"menu", i:0, score:0, picked:null, order:[], log:[], qi:0};
 let token = 0, skip = false;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -723,14 +734,235 @@ async function playDialogue(box, lines, my){
   return my === token;
 }
 
+
+/* ================= Música: milonga original en 8 bits (WebAudio) =================
+   Melodía compuesta para este juego, al estilo de un tango/milonga. No es «Se dice de mí». */
+const Music = (() => {
+  let ctx = null, master = null, timer = null, next = 0, step = 0, on = false;
+  const S = 60 / 104 / 4;                       // semicorchea a 104 negras por minuto
+  const n2f = m => 440 * Math.pow(2, (m - 69) / 12);
+  const CH = ["Dm","Dm","A7","A7","A7","A7","Dm","Dm","Gm","Gm","Dm","Dm","A7","A7","Dm","Dm"];
+  const BASS = {Dm:[50,57,62], A7:[45,52,57], Gm:[43,50,55]};
+  const CHORD = {Dm:[62,65,69], A7:[61,64,67], Gm:[62,67,70]};
+  const MEL = [
+    [[0,69,3],[3,65,3],[6,62,2]], [[0,64,2],[2,65,2],[4,67,2],[6,69,2]],
+    [[0,70,3],[3,69,3],[6,67,2]], [[0,64,6]],
+    [[0,64,2],[2,67,2],[4,70,2],[6,73,2]], [[0,76,3],[3,74,3],[6,73,2]],
+    [[0,74,3],[3,69,3],[6,65,2]], [[0,62,6]],
+    [[0,67,3],[3,70,3],[6,74,2]], [[0,77,3],[3,76,1],[4,74,4]],
+    [[0,69,3],[3,74,3],[6,77,2]], [[0,76,2],[2,74,2],[4,73,2],[6,74,2]],
+    [[0,76,3],[3,73,3],[6,69,2]], [[0,67,2],[2,69,2],[4,70,2],[6,73,2]],
+    [[0,74,3],[3,69,3],[6,65,2]], [[0,62,4],[4,74,2]]
+  ];
+  function tone(f, t, d, type, g, cut){
+    const o = ctx.createOscillator(), a = ctx.createGain();
+    o.type = type; o.frequency.value = f;
+    let node = o;
+    if (cut){ const fl = ctx.createBiquadFilter(); fl.type = "lowpass"; fl.frequency.value = cut; o.connect(fl); node = fl; }
+    node.connect(a); a.connect(master);
+    a.gain.setValueAtTime(0.0001, t);
+    a.gain.exponentialRampToValueAtTime(g, t + 0.015);
+    a.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.start(t); o.stop(t + d + 0.05);
+  }
+  // «bandoneón»: dos sierras levemente desafinadas y filtradas
+  const lead = (m, t, d) => [-7, 7].forEach(c => tone(n2f(m) * Math.pow(2, c / 1200), t, d, "sawtooth", 0.05, 1900));
+  function perc(t, g){
+    const len = 0.045, b = ctx.createBuffer(1, Math.floor(ctx.sampleRate * len), ctx.sampleRate), ch = b.getChannelData(0);
+    for (let i = 0; i < ch.length; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / ch.length);
+    const src = ctx.createBufferSource(), hp = ctx.createBiquadFilter(), a = ctx.createGain();
+    src.buffer = b; hp.type = "highpass"; hp.frequency.value = 2600; a.gain.value = g;
+    src.connect(hp); hp.connect(a); a.connect(master); src.start(t);
+  }
+  function sched(s, t){
+    const bar = Math.floor(s / 8) % 16, pos = s % 8, c = CH[bar], b = BASS[c];
+    if (pos === 0) tone(n2f(b[0]), t, S * 3, "triangle", 0.34);
+    if (pos === 3) tone(n2f(b[1]), t, S * 3, "triangle", 0.26);
+    if (pos === 6) tone(n2f(b[2]), t, S * 2, "triangle", 0.24);
+    if (pos === 4) CHORD[c].forEach(m => tone(n2f(m), t, S * 1.6, "square", 0.018, 1300));
+    if (pos === 0 || pos === 4) perc(t, pos === 0 ? 0.12 : 0.07);
+    for (const [p, m, d] of MEL[bar]) if (p === pos) lead(m, t, S * d * 0.95);
+  }
+  function tick(){ while (next < ctx.currentTime + 0.25){ sched(step, next); next += S; step = (step + 1) % 128; } }
+  return {
+    get on(){ return on },
+    start(){
+      try {
+        if (!ctx){ ctx = new (window.AudioContext || window.webkitAudioContext)(); master = ctx.createGain(); master.gain.value = 0.5; master.connect(ctx.destination); }
+        ctx.resume();
+        if (!timer){ next = ctx.currentTime + 0.08; step = 0; timer = setInterval(tick, 40); }
+        on = true;
+      } catch(e){ on = false; }
+    },
+    stop(){ clearInterval(timer); timer = null; on = false; try { ctx && ctx.suspend(); } catch(e){} }
+  };
+})();
+const mbtn = document.getElementById("music");
+function musicPref(){ try { return localStorage.getItem("betty-music") !== "off" } catch(e){ return true } }
+function setPref(v){ try { localStorage.setItem("betty-music", v) } catch(e){} }
+function updateMusicBtn(){
+  const t = Music.on ? "Apagar la música" : "Encender la música";
+  mbtn.setAttribute("aria-pressed", Music.on ? "true" : "false"); mbtn.title = t; mbtn.setAttribute("aria-label", t);
+}
+mbtn.onclick = () => { if (Music.on){ Music.stop(); setPref("off"); } else { Music.start(); setPref("on"); } updateMusicBtn(); };
+document.addEventListener("pointerdown", e => {
+  if (e.target.closest && e.target.closest("#music")) return;
+  if (musicPref() && !Music.on){ Music.start(); updateMusicBtn(); }
+}, {once:true});
+updateMusicBtn();
+
+/* ================= Menú inicial: todos entran a Ecomoda ================= */
+const ENTRAN = ["armando","marcela","mario","patricia","hugo","daniel","inesita","freddy","bertha","aura","sandra","mariana","nicolas"];
+let menuSeen = false;
+
+function buildingSVG(){
+  let win = "";
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 8; c++){
+    const lit = (r * 8 + c) % 3 === 1;
+    win += `<rect x="${31 + c * 12.6}" y="${33 + r * 12}" width="8.6" height="8" rx="1" fill="${lit ? "#f3d27a" : "#8fb3e0"}" opacity="${lit ? .95 : .75}"/>`;
+  }
+  const fabric = ["#c8102e","#e0a84a","#2f6db5","#f3efe8","#7a3a8a","#3d6b4a"];
+  const vit = x => `<rect x="${x}" y="62" width="32" height="24" fill="#cfe0f2" opacity=".35"/>` +
+    fabric.slice(0,4).map((f,i) => `<rect x="${x + 3 + i * 7.4}" y="${68 + (i % 2) * 2}" width="5" height="${14 - (i % 2) * 2}" rx="2.5" fill="${fabric[(i + x) % 6]}"/>`).join("") +
+    `<rect x="${x}" y="62" width="32" height="24" fill="none" stroke="#c8963e" stroke-width="1"/>`;
+  return `<svg class="bld" viewBox="0 0 160 110" aria-label="Fachada de Ecomoda" role="img">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#151a33"/><stop offset="1" stop-color="#4a3350"/></linearGradient>
+      <clipPath id="doorclip"><rect x="68.5" y="62" width="23" height="30"/></clipPath>
+    </defs>
+    <rect width="160" height="110" fill="url(#sky)"/>
+    <circle cx="138" cy="14" r="5" fill="#f4f7ff" opacity=".85"/>
+    <path d="M0 64 L18 48 L34 56 L58 34 L76 50 L96 42 L120 56 L142 38 L160 50 L160 92 L0 92Z" fill="#262c45"/>
+    <rect x="22" y="8" width="116" height="84" fill="#ebe4d6"/>
+    <rect x="22" y="8" width="116" height="4" fill="#c8963e"/>
+    <rect x="40" y="15" width="80" height="12" rx="1.5" fill="#111"/>
+    <text x="80" y="24.2" text-anchor="middle" font-family="Bodoni Moda, Didot, serif" font-weight="800" font-size="8.4" letter-spacing="2.2" fill="#f4f7ff">ECOMODA</text>
+    ${win}
+    ${vit(28)}${vit(100)}
+    <path d="M64 56 L96 56 L99 61 L61 61Z" fill="#c8102e"/>
+    <rect x="67" y="61" width="26" height="31" fill="#2a2a2e"/>
+    <g clip-path="url(#doorclip)">
+      <rect class="door doorL" x="68.5" y="62" width="11.5" height="30" fill="#9cc3ea" opacity=".85" stroke="#c8963e" stroke-width=".8"/>
+      <rect class="door doorR" x="80" y="62" width="11.5" height="30" fill="#9cc3ea" opacity=".85" stroke="#c8963e" stroke-width=".8"/>
+    </g>
+    <rect x="0" y="92" width="160" height="18" fill="#3b3a40"/>
+    <rect x="0" y="92" width="160" height="1.4" fill="#5a5860"/>
+    <rect x="60" y="92" width="40" height="3" fill="#8a1d2a" opacity=".8"/>
+  </svg>`;
+}
+
+function renderMenu(){
+  const intro = !menuSeen, best = getBest();
+  app.innerHTML = `<section class="menu">
+    <div class="stage" id="stage">${buildingSVG()}
+      ${intro ? `<button class="btn splash-btn" id="enter">▶ Entrar a Ecomoda</button>`
+              : `<div class="walker" style="left:14%">${fig("betty","happy")}</div><div class="walker" style="left:72%">${fig("armando","neutral")}</div>`}
+      <button class="btn ghost small skip-intro" id="skipIntro" hidden>Saltar</button>
+    </div>
+    <h1>¿Y ahora qué, Betty?</h1>
+    <p class="tag" id="tag" ${intro ? "hidden" : ""}>Un juego de la novela <i>Yo soy Betty, la fea</i>. Los personajes hablan, tú decides qué pasa después.</p>
+    <div class="menu-btns" id="mbtns" ${intro ? "hidden" : ""}>
+      <button class="btn" id="m-new">Nueva partida</button>
+      <button class="btn ghost" id="m-cast">El reparto y los créditos</button>
+      <button class="btn ghost" id="m-frases">Frases célebres</button>
+      <button class="btn ghost" id="m-replay">Ver la entrada otra vez</button>
+      ${best ? `<span class="best">Tu mejor marca: ${best} de ${QS.length}</span>` : ""}
+    </div>
+  </section>`;
+  const go = v => { st.view = v; render(); window.scrollTo({top:0}); };
+  document.getElementById("m-new").onclick = start;
+  document.getElementById("m-cast").onclick = () => go("intro");
+  document.getElementById("m-frases").onclick = () => go("frases");
+  document.getElementById("m-replay").onclick = () => { menuSeen = false; render(); };
+  const en = document.getElementById("enter");
+  if (en) en.onclick = () => {
+    if (musicPref()){ Music.start(); updateMusicBtn(); }
+    en.remove(); playEntrance(token);
+  };
+}
+
+async function playEntrance(my){
+  const stage = document.getElementById("stage"), sk = document.getElementById("skipIntro");
+  let done = false;
+  const alive = () => !done && my === token;
+  function finish(){
+    if (done || my !== token) return;
+    done = true; menuSeen = true;
+    stage.querySelectorAll(".walker").forEach(w => w.remove());
+    stage.classList.remove("doors-open");
+    stage.insertAdjacentHTML("beforeend", `<div class="walker" style="left:14%">${fig("betty","happy")}</div>`);
+    sk.hidden = true;
+    document.getElementById("tag").hidden = false;
+    document.getElementById("mbtns").hidden = false;
+    document.getElementById("m-new").focus({preventScroll:true});
+  }
+  sk.hidden = false; sk.onclick = finish;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || !stage.animate){ finish(); return; }
+
+  const intoDoor = async w => {
+    stage.classList.add("doors-open");
+    const b = w.animate([{transform:"scale(1)", opacity:1}, {transform:"scale(.7) translateY(-8%)", opacity:0}], {duration:420, fill:"forwards"});
+    try { await b.finished } catch(e){}
+    w.remove();
+  };
+  const walk = async (k, mood) => {
+    const w = document.createElement("div");
+    w.className = "walker walking"; w.innerHTML = fig(k, mood); stage.appendChild(w);
+    const a = w.animate([{left:"-14%"}, {left:"44.5%"}], {duration:2600, easing:"linear", fill:"forwards"});
+    try { await a.finished } catch(e){ return }
+    if (!alive()) return;
+    await intoDoor(w);
+  };
+  const ps = [];
+  for (let i = 0; i < ENTRAN.length; i++){
+    if (!alive()) return;
+    ps.push(walk(ENTRAN[i], i % 3 === 0 ? "happy" : "neutral"));
+    await sleep(520);
+  }
+  await Promise.all(ps);
+  if (!alive()) return;
+  stage.classList.remove("doors-open");
+  await sleep(500);
+  if (!alive()) return;
+
+  // Betty llega de última, se detiene… y se atreve.
+  const w = document.createElement("div");
+  w.className = "walker walking"; w.innerHTML = fig("betty","neutral") + `<div class="say"></div>`;
+  stage.appendChild(w);
+  let a = w.animate([{left:"-14%"}, {left:"24%"}], {duration:1800, easing:"ease-out", fill:"forwards"});
+  try { await a.finished } catch(e){ return }
+  if (!alive()) return;
+  w.classList.remove("walking");
+  const f = w.querySelector(".fig"), say = w.querySelector(".say");
+  f.classList.add("talk");
+  await typeInto(say, "¡Ay, Dios mío! Mi primer día en Ecomoda…", my, 42);
+  f.classList.remove("talk");
+  await sleep(900);
+  if (!alive()) return;
+  say.remove(); w.classList.add("walking");
+  stage.classList.add("doors-open");
+  a = w.animate([{left:"24%"}, {left:"44.5%"}], {duration:1300, easing:"linear", fill:"forwards"});
+  try { await a.finished } catch(e){ return }
+  if (!alive()) return;
+  await intoDoor(w);
+  stage.classList.remove("doors-open");
+  await sleep(450);
+  finish();
+}
+
+function topbar(){ return `<div class="topbar"><button class="btn ghost small" id="tomenu">☰ Menú</button><span class="brand">¿Y ahora qué, Betty?</span></div>`; }
+
 /* ================= Vistas ================= */
 function render(){
   token++; skip = false;
-  if (st.view === "intro") return renderIntro();
-  if (st.view === "game") return renderGame();
-  if (st.view === "inter") return renderInter();
-  if (st.view === "frases") return renderFrases();
-  renderEnd();
+  if (st.view === "menu") return renderMenu();
+  if (st.view === "intro") renderIntro();
+  else if (st.view === "game") renderGame();
+  else if (st.view === "inter") renderInter();
+  else if (st.view === "frases") renderFrases();
+  else renderEnd();
+  app.insertAdjacentHTML("afterbegin", topbar());
+  document.getElementById("tomenu").onclick = () => { st.view = "menu"; render(); window.scrollTo({top:0}); };
 }
 
 function credits(){
