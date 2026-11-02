@@ -263,6 +263,8 @@ kbd{font-family:var(--body); font-weight:800; font-size:.92em; background:var(--
 .urlbox code{font-size:14px; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:6px 10px; user-select:all; overflow-wrap:anywhere; min-width:0}
 .install-view{display:flex; flex-direction:column; gap:14px}
 .install-view p{margin:0; max-width:62ch}
+.btn small{display:block; font-size:12.5px; font-weight:600; opacity:.85; margin-top:1px}
+.menu-btns .btn.danger{border-color:var(--bad); color:var(--bad)}
 footer{margin-top:36px; font-size:12.5px; color:var(--muted); max-width:60ch}
 @media (prefers-reduced-motion:no-preference){
   .scene,.inter,.frases{animation:in .35s ease-out}
@@ -906,7 +908,7 @@ function buildingSVG(){
 }
 
 function renderMenu(){
-  const intro = !menuSeen, best = getBest();
+  const intro = !menuSeen, best = getBest(), saved = loadGame();
   app.innerHTML = `<section class="menu">
     <div class="stage" id="stage">${buildingSVG()}
       ${intro ? `<button class="btn splash-btn" id="enter">▶ Entrar a Ecomoda</button>`
@@ -916,7 +918,8 @@ function renderMenu(){
     <h1>¿Y ahora qué, Betty?</h1>
     <p class="tag" id="tag" ${intro ? "hidden" : ""}>Un juego de la novela <i>Yo soy Betty, la fea</i>. Los personajes hablan, tú decides qué pasa después.</p>
     <div class="menu-btns" id="mbtns" ${intro ? "hidden" : ""}>
-      <button class="btn" id="m-new">Nueva partida</button>
+      ${saved ? `<button class="btn" id="m-cont">Continuar partida<small>${esc(saved.st.view === "inter" ? "Diario de Betty, " : "")}escena ${saved.st.i + 1} de ${QS.length} · ${saved.st.score} ${saved.st.score === 1 ? "acierto" : "aciertos"}</small></button>` : ""}
+      <button class="btn ${saved ? "ghost" : ""}" id="m-new">Nueva partida</button>
       <button class="btn ghost" id="m-cast">El reparto y los créditos</button>
       <button class="btn ghost" id="m-frases">Frases célebres</button>
       <button class="btn ghost" id="m-install">Instalar en el celular</button>
@@ -925,7 +928,14 @@ function renderMenu(){
     </div>
   </section>`;
   const go = v => { st.view = v; render(); window.scrollTo({top:0}); };
-  document.getElementById("m-new").onclick = start;
+  const nb = document.getElementById("m-new");
+  nb.onclick = () => {
+    if (!loadGame() || nb.dataset.sure) return start();
+    nb.dataset.sure = "1"; nb.classList.add("danger");
+    nb.innerHTML = "¿Empezar de cero?<small>Toca otra vez. Se borra la partida guardada.</small>";
+  };
+  const cb = document.getElementById("m-cont");
+  if (cb) cb.onclick = continueGame;
   document.getElementById("m-cast").onclick = () => go("intro");
   document.getElementById("m-frases").onclick = () => go("frases");
   document.getElementById("m-install").onclick = () => go("install");
@@ -950,7 +960,7 @@ async function playEntrance(my){
     sk.hidden = true;
     document.getElementById("tag").hidden = false;
     document.getElementById("mbtns").hidden = false;
-    document.getElementById("m-new").focus({preventScroll:true});
+    (document.getElementById("m-cont") || document.getElementById("m-new")).focus({preventScroll:true});
   }
   sk.hidden = false; sk.onclick = finish;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches || !stage.animate){ finish(); return; }
@@ -1052,11 +1062,35 @@ function renderInstall(){
   wireUrlBox();
 }
 
+/* ================= Partida guardada en el navegador ================= */
+const SAVE_KEY = "betty-save-v1";
+function saveGame(){
+  try {
+    if (st.view === "game" || st.view === "inter") localStorage.setItem(SAVE_KEY, JSON.stringify({st, at:Date.now()}));
+    else if (st.view === "end") localStorage.removeItem(SAVE_KEY);
+  } catch(e){}
+}
+function loadGame(){
+  try {
+    const d = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+    if (d && d.st && Number.isInteger(d.st.i) && d.st.i >= 0 && d.st.i < QS.length && Array.isArray(d.st.order) && Array.isArray(d.st.log)) return d;
+  } catch(e){}
+  return null;
+}
+function continueGame(){
+  const d = loadGame(); if (!d) return start();
+  st = Object.assign({qi:0}, d.st);
+  render(); window.scrollTo({top:0});
+}
+window.addEventListener("pagehide", saveGame);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") saveGame(); });
+
 function topbar(){ return `<div class="topbar"><button class="btn ghost small" id="tomenu">☰ Menú</button><span class="brand">¿Y ahora qué, Betty?</span></div>`; }
 
 /* ================= Vistas ================= */
 function render(){
   token++; skip = false;
+  saveGame();
   if (st.view === "menu") return renderMenu();
   if (st.view === "intro") renderIntro();
   else if (st.view === "game") renderGame();
@@ -1107,7 +1141,7 @@ function renderIntro(){
     </div>
     ${credits()}
   </section>`;
-  document.getElementById("start").onclick = start;
+  document.getElementById("start").onclick = () => { if (loadGame()){ menuSeen = true; st.view = "menu"; render(); window.scrollTo({top:0}); } else start(); };
   document.getElementById("frases").onclick = () => { st.view = "frases"; render(); window.scrollTo({top:0}); };
   const my = token, hello = document.getElementById("hello");
   typeInto(hello, "¡Hola! Soy Beatriz Pinzón Solano. ¿Me acompaña a Ecomoda? Usted decide qué pasa después.", my, 34)
