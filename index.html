@@ -238,6 +238,18 @@ svg.doll .om{opacity:0}
   @keyframes walk{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-8%) rotate(4deg)}}
   .menu-btns:not([hidden]),.menu .tag:not([hidden]){animation:in .5s ease-out}
 }
+/* Patricia en la junta: todos la miran */
+.stare{display:flex; flex-direction:column; gap:8px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:12px}
+.stare .stare-bub{max-width:100%; align-self:flex-start; font-size:17px}
+.stare-row{display:flex; align-items:flex-end; gap:6px}
+.stare-p{flex:0 0 clamp(60px,18%,86px)}
+.watchers{flex:1 1 0; min-width:0; display:flex; align-items:flex-end; justify-content:flex-end; gap:2px; border-bottom:9px solid var(--brown); border-radius:0 0 3px 3px; padding-left:4px}
+.wslot{flex:1 1 0; min-width:0; max-width:66px}
+.stare-cap{margin:0; font-style:italic; color:var(--muted); font-size:14.5px; min-height:1.4em}
+@media (prefers-reduced-motion:no-preference){
+  .fig.jolt{animation:jolt .38s ease-out}
+  @keyframes jolt{0%{transform:none}35%{transform:translateY(-12%) rotate(-4deg)}100%{transform:none}}
+}
 footer{margin-top:36px; font-size:12.5px; color:var(--muted); max-width:60ch}
 @media (prefers-reduced-motion:no-preference){
   .scene,.inter,.frases{animation:in .35s ease-out}
@@ -292,7 +304,7 @@ const LOOK = {
   sandra:  {skin:"l", hair:"pixie", hc:"#4a3020", top:"sweater", oc:"#7a9a6a", collar:1, tall:1},
   mariana: {skin:"t", hair:"curly", hc:"#1a1210", top:"dress",   oc:"#7a3a8a", band:"#e8b44a", earrings:1}
 };
-function doll(key, mood="neutral"){
+function doll(key, mood="neutral", look=0){
   const L = LOOK[key], sk = SKIN[L.skin], hc = L.hc, dy = L.tall ? -7 : 0;
   let back = "", front = "";
   switch(L.hair){
@@ -360,11 +372,11 @@ function doll(key, mood="neutral"){
       <circle cx="31" cy="47" r="3.5" fill="${sk}"/><circle cx="69" cy="47" r="3.5" fill="${sk}"/>
       <circle cx="50" cy="44" r="19.5" fill="${sk}"/>
       <circle cx="38" cy="52" r="3.4" fill="#e66a6a" opacity=".25"/><circle cx="62" cy="52" r="3.4" fill="#e66a6a" opacity=".25"/>
-      ${front}${brows}<g class="eyes">${eyes}</g>${glasses}${extras}${mouth}${openMouth}
+      ${front}${brows}<g transform="translate(${look * 2.4} 0)"><g class="eyes">${eyes}</g></g>${glasses}${extras}${mouth}${openMouth}
     </g></g>
   </svg>`;
 }
-const fig = (k, mood, cls="") => `<div class="fig ${cls}">${doll(k, mood)}</div>`;
+const fig = (k, mood, cls="", look=0) => `<div class="fig ${cls}">${doll(k, mood, look)}</div>`;
 
 /* ================= Personajes y créditos ================= */
 const CAST = {
@@ -568,7 +580,7 @@ const QS = [
      "Desaparecer sin decirle nada a nadie"],
   r:[["betty","Señores de la junta: estas son las cifras reales de Ecomoda.","neutral"],
      ["daniel","¡Armando, nos engañaste a todos!","angry"],
-     ["patricia","Y llegaron los meseros.","surprised",1],
+     ["@stare","Y llegaron los meseros.","Silencio total. Toda la junta se queda mirando a Patricia.",1],
      ["marcela","¿Cómo pudiste, Armando?","sad"]],
   e:"Dije la verdad, toda la verdad. Después recogí mis cosas del cuartico."},
  {act:"Acto IV · La caída",
@@ -705,18 +717,47 @@ async function typeInto(el, text, my, speed=26){
   el.classList.remove("caret");
 }
 
-function sides(lines){ const s = {}; let n = 0; lines.forEach(([k]) => { const b = k.replace(/2$/,""); if (!(b in s)) s[b] = (n++) % 2; }); return s; }
+const WATCHERS = ["armando","marcela","daniel","mario","betty"];
+function stareHTML(text, cap, final){
+  return `<div class="stare">
+    <div class="bub stare-bub"><span class="who">Patricia</span><span class="tx">${final ? esc(text) : ""}</span>${STAR}</div>
+    <div class="stare-row">
+      <div class="stare-p">${fig("patricia","happy")}</div>
+      <div class="watchers">${WATCHERS.map(w => `<div class="wslot" data-k="${w}">${fig(w, final ? "surprised" : "neutral", "", final ? -1 : 0)}</div>`).join("")}</div>
+    </div>
+    <p class="stare-cap">${final ? esc(cap) : ""}</p>
+  </div>`;
+}
+function sides(lines){ const s = {}; let n = 0; lines.filter(([k]) => k[0] !== "@").forEach(([k]) => { const b = k.replace(/2$/,""); if (!(b in s)) s[b] = (n++) % 2; }); return s; }
 function lineHTML(k, m, star, side, text, talk){
   return `<div class="ln ${side ? "r" : ""}">${fig(k, m, talk ? "talk" : "")}<div class="bub"><span class="who">${esc(CAST_NAME(k))}</span><span class="tx">${text}</span>${star ? STAR : ""}</div></div>`;
 }
 function staticDialogue(lines, cls=""){
   const s = sides(lines);
-  return `<div class="dlg ${cls}">${lines.map(([k,t,m,star]) => lineHTML(k, m, star, s[k.replace(/2$/,"")], esc(t))).join("")}</div>`;
+  return `<div class="dlg ${cls}">${lines.map(([k,t,m,star]) => k === "@stare" ? stareHTML(t, m, 1) : lineHTML(k, m, star, s[k.replace(/2$/,"")], esc(t))).join("")}</div>`;
 }
 async function playDialogue(box, lines, my){
   const s = sides(lines);
   for (const [k,t,m,star] of lines){
     if (my !== token) return false;
+    if (k === "@stare"){
+      box.insertAdjacentHTML("beforeend", stareHTML(t, m, 0));
+      const el = box.lastElementChild, pf = el.querySelector(".stare-p .fig");
+      el.scrollIntoView?.({block:"nearest", behavior: skip ? "auto" : "smooth"});
+      pf.classList.add("talk");
+      await typeInto(el.querySelector(".tx"), t, my, 60);
+      pf.classList.remove("talk");
+      if (!skip) await sleep(350);
+      for (const w of el.querySelectorAll(".wslot")){
+        if (my !== token) return false;
+        w.innerHTML = fig(w.dataset.k, "surprised", "jolt", -1);
+        if (!skip) await sleep(190);
+      }
+      if (!skip) await sleep(500);
+      await typeInto(el.querySelector(".stare-cap"), m, my, 34);
+      if (!skip) await sleep(900);
+      continue;
+    }
     const side = s[k.replace(/2$/,"")];
     if (!skip){
       box.insertAdjacentHTML("beforeend", lineHTML(k, m, 0, side, `<span class="typing" aria-label="escribiendo"><i></i><i></i><i></i></span>`, 0));
