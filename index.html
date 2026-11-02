@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Juego de preguntas con bonequitos y diálogos: adivina qué pasa después en Yo soy Betty, la fea.">
+<meta name="theme-color" content="#6b1f4f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Betty">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>¿Y ahora qué, Betty?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,800;1,6..96,500&family=Caveat:wght@500;700&family=Nunito+Sans:wght@400;600;800&family=Special+Elite&display=swap">
+<style>
+/* Layout: el diario de Betty — cuaderno rayado con margen rojo; escenas como conversaciones que se escriben solas, con bonequitos animados. */
+:root{
+  --paper:#fbf8ef; --line:#c9d6ea; --margin:#e08a8a;
+  --ink:#2a2233; --muted:#6c6276;
+  --plum:#6b1f4f; --plum-soft:#f1e3ec;
+  --mustard:#a8740a; --mustard-soft:#f6ead0;
+  --ok:#2f7a4b; --ok-soft:#e0f0e5; --bad:#b03a3a; --bad-soft:#f7e1e1;
+  --card:#ffffff; --shadow:rgba(60,30,60,.12); --letter:#fffdf6;
+  --display:"Bodoni Moda","Didot","Times New Roman",serif;
+  --hand:"Caveat","Segoe Print","Bradley Hand",cursive;
+  --type:"Special Elite","Courier New",monospace;
+  --body:"Nunito Sans","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#1c1820; --line:#2d3346; --margin:#7a3a44;
+  --ink:#efe8f2; --muted:#a99db3;
+  --plum:#e48bc0; --plum-soft:#3a2234;
+  --mustard:#e8b44a; --mustard-soft:#3a3020;
+  --ok:#7fd29d; --ok-soft:#1f3527; --bad:#f08f8f; --bad-soft:#3d2224;
+  --card:#25202b; --shadow:rgba(0,0,0,.4); --letter:#2a2620; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1c1820; --line:#2d3346; --margin:#7a3a44;
+  --ink:#efe8f2; --muted:#a99db3;
+  --plum:#e48bc0; --plum-soft:#3a2234;
+  --mustard:#e8b44a; --mustard-soft:#3a3020;
+  --ok:#7fd29d; --ok-soft:#1f3527; --bad:#f08f8f; --bad-soft:#3d2224;
+  --card:#25202b; --shadow:rgba(0,0,0,.4); --letter:#2a2620; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.55;
+  background-image:
+    linear-gradient(90deg, transparent 0 46px, var(--margin) 46px 48px, transparent 48px),
+    repeating-linear-gradient(to bottom, transparent 0 31px, var(--line) 31px 32px);
+  min-height:100vh;
+}
+.wrap{max-width:780px; margin:0 auto; padding-block:28px 64px;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+@media (min-width:700px){.wrap{padding-left:72px}}
+a{color:var(--plum)}
+
+header.mast{display:flex; flex-direction:column; gap:4px; margin-bottom:22px}
+.eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:800}
+h1{font-family:var(--display); font-weight:800; font-size:clamp(34px,7vw,58px); line-height:1.02; margin:0; color:var(--plum); text-wrap:balance}
+h1 em{font-style:italic; font-weight:500; color:var(--ink)}
+h2{font-family:var(--display); font-weight:800; font-size:26px; margin:0; text-wrap:balance}
+h3{margin:0; font-size:15px}
+
+.btn{font:inherit; font-weight:800; border:2px solid var(--plum); background:var(--plum); color:var(--paper);
+  padding:12px 22px; border-radius:999px; cursor:pointer; font-size:16px; transition:transform .12s}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent; color:var(--plum)}
+.btn.small{padding:6px 14px; font-size:13.5px}
+.btn:focus-visible,.opt:focus-visible,.quote-card:focus-visible{outline:3px solid var(--mustard); outline-offset:3px}
+
+/* ---------- Bonequitos animados ---------- */
+svg.doll{display:block; width:100%; height:auto; overflow:visible}
+svg.doll .hd, svg.doll .eyes, svg.doll .om, svg.doll .bd{transform-box:view-box}
+svg.doll .hd{transform-origin:50px 74px}
+svg.doll .eyes{transform-origin:50px 46.5px}
+svg.doll .om{opacity:0}
+@media (prefers-reduced-motion:no-preference){
+  svg.doll .hd{animation:bob 3.4s ease-in-out infinite; animation-delay:var(--d,0s)}
+  svg.doll .bd{transform-origin:50px 112px; animation:breathe 3.4s ease-in-out infinite; animation-delay:var(--d,0s)}
+  svg.doll .eyes{animation:blink 5s infinite; animation-delay:var(--d,0s)}
+  .fig.talk svg.doll .hd{animation:nod .55s ease-in-out infinite alternate}
+  .fig.talk svg.doll .om{animation:mouth .2s steps(2,jump-none) infinite alternate}
+  .fig.write svg.doll .hd{animation:write 1.1s ease-in-out infinite alternate}
+  .fig:hover svg.doll .hd{animation:wave .6s ease-in-out 2 alternate}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-1.2px) rotate(1.2deg)}}
+  @keyframes breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.015)}}
+  @keyframes blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+  @keyframes nod{from{transform:rotate(-3deg) translateY(0)}to{transform:rotate(3deg) translateY(-1.5px)}}
+  @keyframes mouth{from{opacity:0}to{opacity:1}}
+  @keyframes write{from{transform:rotate(4deg) translateY(1px)}to{transform:rotate(7deg) translateY(2px)}}
+  @keyframes wave{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+}
+@media (prefers-reduced-motion:reduce){ .fig.talk svg.doll .om{opacity:1} }
+
+/* ---------- Intro ---------- */
+.intro{display:flex; flex-direction:column; gap:18px}
+.intro p{max-width:60ch; margin:0}
+.lineup{display:flex; flex-wrap:wrap; align-items:flex-end; padding-top:8px}
+.lineup .fig{width:clamp(52px,12vw,80px); margin-right:-8px}
+.hero-say{display:flex; align-items:flex-end; gap:10px}
+.hero-say .fig{flex:0 0 92px}
+.cast{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px}
+.person{display:flex; gap:12px; align-items:center; background:var(--card); padding:10px 12px; border-radius:10px; box-shadow:0 1px 0 var(--shadow), 0 4px 14px var(--shadow)}
+.person > div:last-child{min-width:0}
+.person p{margin:2px 0 0; font-size:13.5px; color:var(--muted); line-height:1.4}
+.person .pic{flex:0 0 64px; display:flex; align-items:flex-end; justify-content:center}
+.person .pic.group{flex-basis:92px}
+.person .pic.group .fig{width:30px; margin-right:-6px}
+.actor{display:block; font-size:12px; font-weight:700; color:var(--mustard); margin-top:1px}
+.cta-row{display:flex; flex-wrap:wrap; gap:12px; align-items:center}
+.best{font-family:var(--hand); font-size:22px; color:var(--muted)}
+
+/* ---------- Diálogos ---------- */
+.dlg{display:flex; flex-direction:column; gap:12px}
+.ln{display:flex; gap:10px; align-items:flex-end}
+.ln.r{flex-direction:row-reverse}
+.ln .fig{flex:0 0 62px}
+.bub{position:relative; min-width:0; max-width:min(78%,480px); background:var(--paper); border:2px solid var(--line); border-radius:16px; border-bottom-left-radius:4px; padding:8px 13px 9px; font-size:15.5px; line-height:1.4}
+.ln.r .bub{border-bottom-left-radius:16px; border-bottom-right-radius:4px}
+.bub .who{display:block; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:800; color:var(--plum); margin-bottom:2px}
+.bub .star{display:block; margin-top:4px; font-size:11px; font-weight:800; color:var(--mustard); letter-spacing:.04em}
+.dlg.after .bub{background:var(--mustard-soft); border-color:transparent}
+.dlg.after .bub .who{color:var(--mustard)}
+.hero-say .bub{background:var(--card)}
+.caret::after{content:"▌"; color:var(--plum); margin-left:1px; animation:caret .8s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.typing{display:inline-flex; gap:4px; padding:4px 2px}
+.typing i{width:6px; height:6px; border-radius:50%; background:var(--muted); animation:dots 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s} .typing i:nth-child(3){animation-delay:.3s}
+@keyframes dots{0%,100%{opacity:.25}50%{opacity:1}}
+@media (prefers-reduced-motion:no-preference){
+  .ln{animation:enter .35s ease-out}
+  .ln.r{animation-name:enterR}
+  @keyframes enter{from{transform:translateX(-14px); opacity:0}to{transform:none; opacity:1}}
+  @keyframes enterR{from{transform:translateX(14px); opacity:0}to{transform:none; opacity:1}}
+}
+
+/* ---------- Juego ---------- */
+.hud{display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; justify-content:space-between; margin-bottom:14px; font-size:14px; color:var(--muted); font-weight:700}
+.hud b{color:var(--ink); font-variant-numeric:tabular-nums}
+.bar{flex:1 1 160px; height:8px; background:var(--plum-soft); border-radius:99px; overflow:hidden}
+.bar i{display:block; height:100%; background:var(--plum); transition:width .4s}
+.scene{background:var(--card); border-radius:12px; padding:20px; box-shadow:0 1px 0 var(--shadow), 0 8px 24px var(--shadow); display:flex; flex-direction:column; gap:14px}
+.scene-top{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap}
+.act{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--mustard); font-weight:800}
+.situ{margin:0; font-size:15px; color:var(--muted); font-style:italic}
+.q{font-family:var(--display); font-style:italic; font-size:21px; margin:0; color:var(--plum); text-wrap:balance}
+.qbox{display:flex; flex-direction:column; gap:12px}
+.opts{display:grid; gap:10px}
+.opt{font:inherit; text-align:left; display:flex; gap:12px; align-items:flex-start; background:var(--paper); color:var(--ink);
+  border:2px solid var(--line); border-radius:10px; padding:12px 14px; cursor:pointer; transition:border-color .15s, background .15s}
+.opt:hover:not(:disabled){border-color:var(--plum)}
+.opt .k{flex:0 0 26px; height:26px; border-radius:50%; background:var(--mustard-soft); color:var(--mustard); display:grid; place-items:center; font-weight:800; font-size:13px}
+.opt span:last-child{min-width:0}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok); background:var(--ok-soft)}
+.opt.right .k{background:var(--ok); color:var(--card)}
+.opt.wrong{border-color:var(--bad); background:var(--bad-soft)}
+.opt.wrong .k{background:var(--bad); color:var(--card)}
+.opt.dim{opacity:.55}
+.diary{border-top:2px dashed var(--line); padding-top:14px; display:flex; flex-direction:column; gap:12px}
+.verdict{font-weight:800; font-size:15px}
+.verdict.ok{color:var(--ok)} .verdict.no{color:var(--bad)}
+.note{margin:0; font-family:var(--hand); font-size:23px; line-height:1.25; color:var(--ink)}
+.note::before{content:"Querido diario: "; color:var(--plum)}
+.next-row{display:flex; justify-content:flex-end}
+
+/* ---------- Páginas del diario y la carta ---------- */
+.inter{display:flex; flex-direction:column; gap:16px}
+.page{position:relative; background:var(--card); border-radius:6px 14px 14px 6px; box-shadow:0 1px 0 var(--shadow), 0 10px 30px var(--shadow);
+  padding:22px 20px 26px 58px;
+  background-image:
+    linear-gradient(90deg, transparent 0 40px, var(--margin) 40px 42px, transparent 42px),
+    repeating-linear-gradient(to bottom, transparent 0 33px, var(--line) 33px 34px);
+  background-position:0 14px}
+.page .date{font-family:var(--hand); font-size:22px; color:var(--muted); line-height:34px; margin:0}
+.page .entry{font-family:var(--hand); font-size:clamp(22px,4.6vw,27px); line-height:34px; margin:0; white-space:pre-wrap; color:var(--ink); min-height:136px}
+.page .writer{position:absolute; right:12px; top:-46px; width:80px}
+.quote{border-left:4px solid var(--plum); background:var(--plum-soft); padding:12px 14px; border-radius:0 10px 10px 0}
+.quote p{margin:0; font-family:var(--hand); font-size:28px; line-height:1.15; color:var(--plum)}
+.quote small{display:block; margin-top:6px; font-size:12.5px; color:var(--muted)}
+.letter{background:var(--letter); border:1px solid var(--line); box-shadow:0 2px 0 var(--shadow), 0 14px 34px var(--shadow); padding:26px 22px; transform:rotate(-.6deg); border-radius:2px}
+.letter .memo{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; font-family:var(--type); font-size:13px; color:var(--muted); border-bottom:1px dashed var(--line); padding-bottom:10px; margin-bottom:14px}
+.letter .body{font-family:var(--type); font-size:15.5px; line-height:1.7; white-space:pre-wrap; margin:0; min-height:240px; color:var(--ink)}
+.credit-note{font-size:13px; color:var(--muted); margin:0; max-width:62ch}
+.inter-head{display:flex; align-items:flex-end; gap:12px}
+.inter-head .fig{flex:0 0 74px}
+.inter-head .bub{background:var(--card)}
+
+/* ---------- Frases célebres ---------- */
+.frases{display:flex; flex-direction:column; gap:16px}
+.qgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px}
+.quote-card{font:inherit; color:inherit; text-align:left; cursor:pointer; display:flex; gap:12px; align-items:flex-start; background:var(--card); border:0; border-radius:12px; padding:12px; box-shadow:0 1px 0 var(--shadow), 0 4px 14px var(--shadow)}
+.quote-card .fig{flex:0 0 58px}
+.quote-card > div{min-width:0}
+.quote-card .qt{font-family:var(--display); font-style:italic; font-size:18px; line-height:1.25; color:var(--plum); min-height:1.25em}
+.quote-card .by{font-size:12.5px; font-weight:800; margin-top:4px}
+.quote-card .cx{font-size:13px; color:var(--muted); margin-top:2px}
+.sources{font-size:13px; color:var(--muted); margin:0; padding-left:18px}
+
+/* ---------- Final y créditos ---------- */
+.end{display:flex; flex-direction:column; gap:16px; align-items:flex-start}
+.end-top{display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap}
+.end-top .fig{width:110px}
+.big{font-family:var(--display); font-weight:800; font-size:clamp(56px,14vw,96px); line-height:1; color:var(--plum); font-variant-numeric:tabular-nums}
+.big small{font-size:.4em; color:var(--muted)}
+.rank{background:var(--mustard-soft); border-radius:12px; padding:16px 18px; max-width:60ch}
+.rank h2{color:var(--mustard)}
+.rank p{margin:6px 0 0}
+.review{display:flex; flex-direction:column; gap:6px; width:100%; padding:0; margin:0; list-style:none}
+.review li{display:flex; gap:10px; font-size:14px; align-items:baseline}
+.review li b{flex:0 0 18px}
+.review .y{color:var(--ok)} .review .n{color:var(--bad)}
+.credits{display:flex; flex-direction:column; gap:10px; width:100%; background:var(--card); border-radius:12px; padding:18px 20px; box-shadow:0 1px 0 var(--shadow), 0 4px 14px var(--shadow)}
+.credits dl{display:grid; grid-template-columns:minmax(0,170px) minmax(0,1fr); gap:6px 16px; margin:0; font-size:14.5px}
+.credits dt{font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:800; color:var(--muted); padding-top:2px}
+.credits dd{margin:0; min-width:0}
+@media (max-width:520px){.credits dl{grid-template-columns:1fr}.credits dd{margin-bottom:6px}}
+.install{display:flex; flex-direction:column; gap:8px; background:var(--plum-soft); border:2px solid var(--plum); border-radius:12px; padding:14px 16px}
+.install b{color:var(--plum)}
+.install ol{margin:0; padding-left:20px; font-size:14.5px}
+.install .row{display:flex; justify-content:flex-end}
+footer{margin-top:36px; font-size:12.5px; color:var(--muted); max-width:60ch}
+@media (prefers-reduced-motion:no-preference){
+  .scene,.inter,.frases{animation:in .35s ease-out}
+  @keyframes in{from{transform:translateY(8px); opacity:.6}to{transform:none; opacity:1}}
+}
+
+/* Reset que en el artifact ponía la plataforma */
+:root{padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Pantalla de instalación obligatoria en celulares */
+.gated header.mast,.gated footer{display:none}
+.gate{min-height:calc(100dvh - 80px); display:flex; flex-direction:column; justify-content:center; gap:16px; max-width:460px; margin:0 auto}
+.gate .fig{width:120px}
+.gate h2{font-size:30px; color:var(--plum)}
+.gate p{margin:0}
+.gate ol{margin:0; padding-left:22px; display:flex; flex-direction:column; gap:6px; font-size:16px}
+.gate .warn{background:var(--mustard-soft); border-radius:10px; padding:12px 14px; font-size:15px}
+.gate kbd{font-family:var(--body); font-weight:800; background:var(--card); border:1px solid var(--line); border-radius:6px; padding:1px 6px}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <span class="eyebrow">Un juego de la novela · Ecomoda, Bogotá</span>
+    <h1>¿Y ahora qué, <em>Betty</em>?</h1>
+  </header>
+  <main id="app"></main>
+  <footer>Homenaje de fans a <i>Yo soy Betty, la fea</i>, telenovela creada y escrita por Fernando Gaitán y producida por RCN Televisión (Colombia, 1999–2001). Personajes, historia y frases célebres pertenecen a sus autores y a RCN Televisión. Sin afiliación oficial.</footer>
+</div>
+
+<script>
+/* ================= Bonequitos (SVG generado) ================= */
+const SKIN = {l:"#f2c9a5", m:"#dfa97f", t:"#c38b62"};
+const LOOK = {
+  betty:   {skin:"m", hair:"bob",   hc:"#2b1d14", top:"sweater", oc:"#8f6430", collar:1, glasses:1, braces:1},
+  betty2:  {skin:"m", hair:"wavy",  hc:"#3a2418", top:"dress",   oc:"#b3263a", earrings:1, lips:1},
+  armando: {skin:"l", hair:"short", hc:"#1e1612", top:"suit",    oc:"#23344f", tie:"#7a1f2b"},
+  mario:   {skin:"l", hair:"slick", hc:"#8a5f3a", top:"suit",    oc:"#5b5f6b", tie:"#c48a12"},
+  marcela: {skin:"l", hair:"long",  hc:"#6b3a1f", top:"dress",   oc:"#c9628f", pearls:1, lips:1},
+  patricia:{skin:"l", hair:"volume",hc:"#e8c25a", top:"dress",   oc:"#d23c4a", earrings:1, lips:1},
+  hugo:    {skin:"l", hair:"slick", hc:"#111111", top:"dress",   oc:"#1b1b1b", scarf:"#d14fa0"},
+  nicolas: {skin:"m", hair:"bowl",  hc:"#2b1d14", top:"sweater", oc:"#5e7a4a", collar:1, glasses:1},
+  daniel:  {skin:"l", hair:"slick", hc:"#2a2018", top:"suit",    oc:"#1c1c22", tie:"#555a66"},
+  catalina:{skin:"l", hair:"long",  hc:"#1e1410", top:"dress",   oc:"#d9c7a5", pearls:1, lips:1},
+  michel:  {skin:"l", hair:"short", hc:"#b38a4f", top:"open",    oc:"#f1ede4"},
+  hermes:  {skin:"m", hair:"bald",  hc:"#9a9a9a", top:"sweater", oc:"#6b5a3a", collar:1, mustache:"#5a5a5a"},
+  julia:   {skin:"m", hair:"bun",   hc:"#6e5a4a", top:"sweater", oc:"#8a6a8a", collar:1},
+  freddy:  {skin:"t", hair:"short", hc:"#1a1210", top:"sweater", oc:"#3a6ea5", collar:1, cap:"#c0392b"},
+  inesita: {skin:"l", hair:"bun",   hc:"#cfc9c0", top:"sweater", oc:"#9c88b8", collar:1, glasses:1},
+  bertha:  {skin:"m", hair:"curly", hc:"#3a2418", top:"dress",   oc:"#5c7fb0", wide:1},
+  aura:    {skin:"t", hair:"long",  hc:"#1a1210", top:"dress",   oc:"#e07a3a", earrings:1, lips:1},
+  sandra:  {skin:"l", hair:"pixie", hc:"#4a3020", top:"sweater", oc:"#7a9a6a", collar:1, tall:1},
+  mariana: {skin:"t", hair:"curly", hc:"#1a1210", top:"dress",   oc:"#7a3a8a", band:"#e8b44a", earrings:1}
+};
+function doll(key, mood="neutral"){
+  const L = LOOK[key], sk = SKIN[L.skin], hc = L.hc, dy = L.tall ? -7 : 0;
+  let back = "", front = "";
+  switch(L.hair){
+    case "bob":    back = `<rect x="28" y="28" width="44" height="38" rx="12" fill="${hc}"/>`;
+                   front = `<path d="M31 41 Q30 22 50 22 Q70 22 69 41 Z" fill="${hc}"/>`; break;
+    case "long":   back = `<rect x="27" y="30" width="46" height="54" rx="16" fill="${hc}"/>`;
+                   front = `<path d="M31 46 Q30 23 52 23 Q70 24 69 46 Q64 31 46 32 Q36 35 31 46Z" fill="${hc}"/>`; break;
+    case "wavy":   back = `<rect x="26" y="30" width="48" height="52" rx="18" fill="${hc}"/><circle cx="28" cy="76" r="7" fill="${hc}"/><circle cx="72" cy="76" r="7" fill="${hc}"/>`;
+                   front = `<path d="M31 48 Q29 22 53 23 Q71 25 69 48 Q65 30 44 31 Q35 36 31 48Z" fill="${hc}"/>`; break;
+    case "volume": back = `<ellipse cx="50" cy="47" rx="32" ry="31" fill="${hc}"/>`;
+                   front = `<path d="M30 46 Q29 21 52 21 Q72 22 70 46 Q66 30 48 30 Q36 33 30 46Z" fill="${hc}"/>`; break;
+    case "bun":    back = `<circle cx="50" cy="21" r="9" fill="${hc}"/>`;
+                   front = `<path d="M31 43 Q30 24 50 24 Q70 24 69 43 Q62 32 50 32 Q38 32 31 43Z" fill="${hc}"/>`; break;
+    case "short":  front = `<path d="M31 43 Q29 22 50 22 Q71 22 69 43 Q66 31 50 31 Q36 31 31 43Z" fill="${hc}"/>`; break;
+    case "slick":  front = `<path d="M31 40 Q31 22 50 22 Q69 22 69 40 Q63 27 44 30 Q36 32 31 40Z" fill="${hc}"/>`; break;
+    case "bowl":   front = `<path d="M30 50 Q29 21 50 21 Q71 21 70 50 L66 50 L66 39 L34 39 L34 50Z" fill="${hc}"/>`; break;
+    case "pixie":  front = `<path d="M30 48 Q29 22 50 22 Q71 22 70 48 Q66 33 52 32 Q38 33 34 40 Q32 44 30 48Z" fill="${hc}"/>`; break;
+    case "bald":   front = `<ellipse cx="31.5" cy="44" rx="3.5" ry="8" fill="${hc}"/><ellipse cx="68.5" cy="44" rx="3.5" ry="8" fill="${hc}"/>`; break;
+    case "curly":  back = [[30,46],[70,46],[29,56],[71,56]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="7" fill="${hc}"/>`).join("");
+                   front = [[33,36],[40,28],[50,25],[60,28],[67,36]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="8" fill="${hc}"/>`).join(""); break;
+  }
+  if (L.band) front += `<path d="M32 34 Q50 24 68 34" stroke="${L.band}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+  if (L.cap)  front += `<path d="M30 36 Q30 19 50 19 Q70 19 70 36Z" fill="${L.cap}"/><path d="M50 34 L78 36 Q74 39 50 38Z" fill="${L.cap}"/>`;
+
+  const bodyD = L.wide ? "M8 112 Q10 76 50 73 Q90 76 92 112Z" : "M17 112 Q19 79 50 75 Q81 79 83 112Z";
+  let top = `<path d="${bodyD}" fill="${L.oc}"/>`;
+  if (L.top === "suit") top += `<polygon points="43,75 57,75 50,93" fill="#f4f1ea"/><polygon points="48.5,77 51.5,77 53.5,92 50,97 46.5,92" fill="${L.tie}"/><path d="M43 75 L50 96 M57 75 L50 96" stroke="rgba(0,0,0,.25)" stroke-width="1.4"/>`;
+  if (L.top === "open") top += `<polygon points="44,75 56,75 50,88" fill="${sk}"/><path d="M44 75 L50 88 L56 75" stroke="rgba(0,0,0,.18)" stroke-width="1.4" fill="none"/>`;
+  if (L.top === "dress") top += `<path d="M42 75 Q50 85 58 75" fill="${sk}"/>`;
+  if (L.collar) top += `<polygon points="42,74 50,80 45,85" fill="#f4ecd8"/><polygon points="58,74 50,80 55,85" fill="#f4ecd8"/>`;
+  if (L.pearls) top += [38,42,46,50,54,58,62].map((x,i)=>`<circle cx="${x}" cy="${77+[0,3,5,6,5,3,0][i]}" r="1.7" fill="#fbf6ea" stroke="rgba(0,0,0,.15)" stroke-width=".5"/>`).join("");
+  if (L.scarf) top += `<path d="M41 70 Q50 79 59 70 L60 77 Q50 86 40 77Z" fill="${L.scarf}"/><path d="M53 80 L58 98 L50 96Z" fill="${L.scarf}"/>`;
+
+  const ink = "#2a1d1d", lip = L.lips ? "#b0303f" : "#8a3a3a";
+  const brows = {
+    angry:`<path d="M39 39 L46 42 M61 39 L54 42" stroke="${ink}" stroke-width="1.8" stroke-linecap="round"/>`,
+    sad:`<path d="M39 42 L46 39.5 M61 42 L54 39.5" stroke="${ink}" stroke-width="1.6" stroke-linecap="round"/>`,
+    surprised:`<path d="M39 37.5 Q43 35.5 47 37.5 M53 37.5 Q57 35.5 61 37.5" stroke="${ink}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`
+  }[mood] || "";
+  let mouth = {
+    happy:`<path d="M44 54 Q50 62 56 54Z" fill="${lip}"/>`,
+    sad:`<path d="M45 58 Q50 54 55 58" stroke="${lip}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+    angry:`<path d="M45 57 L55 57" stroke="${lip}" stroke-width="2" stroke-linecap="round"/>`,
+    surprised:`<ellipse cx="50" cy="57" rx="2.6" ry="3.2" fill="${lip}"/>`,
+    neutral:`<path d="M45 55.5 Q50 58.5 55 55.5" stroke="${lip}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
+  }[mood];
+  if (L.braces && (mood === "happy" || mood === "neutral"))
+    mouth = `<rect x="43.5" y="53.5" width="13" height="5" rx="2.4" fill="#fff" stroke="#8a3a3a" stroke-width="1"/><path d="M44 56 L56 56" stroke="#8d97a3" stroke-width="1.2"/><path d="M47 54 V58 M50 54 V58 M53 54 V58" stroke="#8d97a3" stroke-width=".7"/>`;
+  const openMouth = `<g class="om"><ellipse cx="50" cy="56.5" rx="4.2" ry="3.6" fill="#5a1f24"/>${L.braces?`<path d="M46.5 55 H53.5" stroke="#c9d0d8" stroke-width="1.4"/>`:""}<ellipse cx="50" cy="58.3" rx="2.4" ry="1.2" fill="#d46a6a"/></g>`;
+  const eyes = mood === "happy" && !L.glasses
+    ? `<path d="M41 47 Q43 44.5 45 47 M55 47 Q57 44.5 59 47" stroke="${ink}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`
+    : `<circle cx="43" cy="46.5" r="2.2" fill="${ink}"/><circle cx="57" cy="46.5" r="2.2" fill="${ink}"/><circle cx="43.7" cy="45.8" r=".7" fill="#fff"/><circle cx="57.7" cy="45.8" r=".7" fill="#fff"/>`;
+  const gr = key === "betty" ? 7 : 6;
+  const glasses = L.glasses ? `<g fill="rgba(255,255,255,.18)" stroke="#3a2a20" stroke-width="1.8"><circle cx="43" cy="46.5" r="${gr}"/><circle cx="57" cy="46.5" r="${gr}"/></g><path d="M49.5 46 L50.5 46" stroke="#3a2a20" stroke-width="1.8"/>` : "";
+  const extras = (L.mustache ? `<path d="M42.5 52.5 Q50 48.5 57.5 52.5 Q50 55 42.5 52.5Z" fill="${L.mustache}"/>` : "")
+    + (L.earrings ? `<circle cx="31" cy="53" r="2.2" fill="#e2b33c"/><circle cx="69" cy="53" r="2.2" fill="#e2b33c"/>` : "");
+  const delay = (-(key.length * 0.37 + mood.length * 0.21) % 3).toFixed(2);
+
+  return `<svg class="doll" viewBox="0 0 100 112" role="img" aria-label="${CAST_NAME(key)}" style="--d:${delay}s">
+    <g class="bd">${top}</g>
+    <rect x="44" y="${56+dy}" width="12" height="${20-dy}" fill="${sk}"/>
+    <rect x="44" y="${56+dy}" width="12" height="5" fill="rgba(0,0,0,.08)"/>
+    <g transform="translate(0 ${dy})"><g class="hd">
+      ${back}
+      <circle cx="31" cy="47" r="3.5" fill="${sk}"/><circle cx="69" cy="47" r="3.5" fill="${sk}"/>
+      <circle cx="50" cy="44" r="19.5" fill="${sk}"/>
+      <circle cx="38" cy="52" r="3.4" fill="#e66a6a" opacity=".25"/><circle cx="62" cy="52" r="3.4" fill="#e66a6a" opacity=".25"/>
+      ${front}${brows}<g class="eyes">${eyes}</g>${glasses}${extras}${mouth}${openMouth}
+    </g></g>
+  </svg>`;
+}
+const fig = (k, mood, cls="") => `<div class="fig ${cls}">${doll(k, mood)}</div>`;
+
+/* ================= Personajes y créditos ================= */
+const CAST = {
+  betty:   {n:"Betty", full:"Beatriz Aurora Pinzón Solano", a:"Ana María Orozco", d:"Economista brillante, de gafas, frenillos y un diario donde lo anota todo."},
+  armando: {n:"Armando", full:"Armando Mendoza", a:"Jorge Enrique Abello", d:"Heredero de Ecomoda y su presidente. Mujeriego y ambicioso."},
+  marcela: {n:"Marcela", full:"Marcela Valencia", a:"Natalia Ramírez", d:"Prometida de Armando y accionista de Ecomoda. Elegante y celosa."},
+  mario:   {n:"Mario", full:"Mario Calderón", a:"Ricardo Vélez", d:"Vicepresidente comercial y mejor amigo de Armando. El de las malas ideas."},
+  nicolas: {n:"Nicolás", full:"Nicolás Mora", a:"Mario Duarte", d:"El mejor amigo de Betty desde siempre. Economista y aliado incondicional."},
+  patricia:{n:"Patricia", full:"Patricia Fernández", a:"Lorna Cepeda", d:"«La peliteñida». Amiga de Marcela y orgullosa de sus seis semestres en la San Marino."},
+  hugo:    {n:"Hugo", full:"Hugo Lombardi", a:"Julián Arango", d:"El diseñador estrella de Ecomoda. Talento enorme, lengua afilada."},
+  daniel:  {n:"Daniel", full:"Daniel Valencia", a:"Luis Mesa", d:"Hermano de Marcela y eterno rival de Armando."},
+  catalina:{n:"Catalina", full:"Catalina Ángel", a:"Celmira Luzardo", d:"Relacionista pública de la moda. Amiga y guía de Betty."},
+  michel:  {n:"Michel", full:"Michel Doinel", a:"Patrick Delmas", d:"Francés encantador que Betty conoce lejos de Bogotá."},
+  hermes:  {n:"Don Hermes", full:"Hermes Pinzón Galarza", a:"Jorge Herrera", d:"El papá de Betty. Estricto, sobreprotector y convencido de que el diablo es puerco."},
+  julia:   {n:"Doña Julia", full:"Julia Solano", a:"Adriana Franco", d:"La mamá de Betty. Dulce y paciente, sobre todo con don Hermes."},
+  freddy:  {n:"Freddy", full:"Freddy Stewart Contreras", a:"Julio César Herrera", d:"El mensajero de Ecomoda. Siempre pide perdón… pero discúlpame."},
+  inesita: {n:"Inesita", full:"Inés", a:"Dora Cadavid", d:"La modista mayor del taller. La que le lleva la valeriana a don Hugo."},
+  bertha:  {n:"Bertha", hide:1}, aura:{n:"Aura María", hide:1}, sandra:{n:"Sandra", hide:1}, mariana:{n:"Mariana", hide:1},
+  betty2:  {n:"Betty", hide:1}
+};
+function CAST_NAME(k){ return CAST[k] ? CAST[k].n : k }
+
+const SRC = {
+  unotv:{t:"UnoTV · Las 10 frases de Yo soy Betty, la fea", u:"https://www.unotv.com/us/las-10-frases-de-yo-soy-betty-la-fea-que-todavia-usan-millones-de-latinos/"},
+  publi22:{t:"Publimetro · Frases más memorables (2022)", u:"https://www.publimetro.co/entretenimiento/2022/03/21/recuerda-algunas-de-las-frases-mas-memorables-de-la-telenovela-yo-soy-betty-la-fea/"},
+  publi24:{t:"Publimetro · Los actores recuerdan las frases icónicas (2024)", u:"https://www.publimetro.co/entretenimiento/2024/07/18/inolvidables-actores-de-betty-la-fea-recordaron-las-frases-mas-iconicas-de-la-novela-con-divertida-dinamica/"},
+  primicias:{t:"Primicias · Frases icónicas de Betty, la fea", u:"https://primicias.ec/entretenimiento/tv-streaming/frases-betty-fea-estreno-secuela-prime-74288"},
+  ntn:{t:"NTN24 · Don Hermes y el origen de «el diablo es puerco»", u:"https://www.ntn24.com/noticias-entretenimiento/don-hermes-de-betty-la-fea-revela-el-origen-de-su-iconica-frase-el-diablo-es-puerco-506574"},
+  sensacine:{t:"SensaCine · El texto de la carta que leyó Betty", u:"https://www.sensacine.com.mx/noticias/noticia-1000091843/"}
+};
+
+/* Banco de frases célebres de la novela (citas breves, con fuente) */
+const FRASES = [
+  {k:"patricia", m:"happy", t:"Hice seis semestres de finanzas en la San Marino.", c:"Su carta de presentación cada vez que alguien duda de ella.", s:"unotv"},
+  {k:"patricia", m:"sad", t:"La pobreza me está respirando en la nuca.", c:"Cuando la plata no le alcanza para su ritmo de vida.", s:"publi24"},
+  {k:"patricia", m:"sad", t:"Soy una mujer pobre disfrazada de rica.", c:"Su confesión más sincera.", s:"primicias"},
+  {k:"patricia", m:"sad", t:"Ay, Marce.", c:"Para quejarse o pedirle un favor a Marcela Valencia.", s:"unotv"},
+  {k:"patricia", m:"surprised", t:"Y llegaron los meseros.", c:"Dicha en plena junta directiva.", s:"unotv"},
+  {k:"hugo", m:"angry", t:"Flu, flu, voló.", c:"Para despachar a alguien de inmediato.", s:"unotv"},
+  {k:"hugo", m:"surprised", t:"Inés, mi valeriana.", c:"Cuando algo, o alguien, le altera los nervios.", s:"publi22"},
+  {k:"hugo", m:"happy", t:"¡Bombi!", c:"Lo máximo, lo espectacular, triple chic.", s:"publi24"},
+  {k:"hugo", m:"angry", t:"Moscorrofio.", c:"Uno de sus insultos más recordados.", s:"publi22"},
+  {k:"hermes", m:"angry", t:"El diablo es puerco.", c:"Su advertencia contra las tentaciones y las malas decisiones.", s:"ntn"},
+  {k:"freddy", m:"angry", t:"Perdóname, pero discúlpame.", c:"Antes de defender su punto con toda la dignidad del mundo.", s:"publi22"},
+  {k:"betty", m:"happy", t:"Tan divino.", c:"Para agradecer un favor o un cumplido.", s:"publi22"},
+  {k:"betty", m:"sad", t:"De nuevo la vida me dice que el amor no es para mí.", c:"Escrita en su diario después de descubrir el engaño.", s:"unotv"},
+  {k:"bertha", m:"happy", t:"¿Vamos al corrientazo?", c:"«El corrientazo»: así llaman en Ecomoda al restaurante barato de la esquina.", s:"publi22", term:1}
+];
+
+/* ================= Escenas =================
+   Línea: [personaje, texto, ánimo, ★ = frase célebre de la novela] */
+const QS = [
+ {act:"Acto I · La llegada",
+  s:"Ecomoda busca secretaria para la presidencia. En la sala de espera, dos candidatas muy distintas.",
+  d:[["patricia","Hice seis semestres de finanzas en la San Marino.","happy",1],
+     ["betty","Yo soy economista, con especialización en finanzas.","neutral"],
+     ["marcela","Armando, Patricia es de toda mi confianza. Contrátala a ella.","neutral"]],
+  q:"¿Qué pasa con el puesto?",
+  a:["Armando se queda con Betty por su capacidad, aunque Patricia también termina trabajando en Ecomoda",
+     "Rechazan a Betty en la entrevista y se va a trabajar a un banco",
+     "Marcela contrata a Betty como su asistente personal",
+     "Hugo Lombardi la escoge como modelo para su nueva colección"],
+  r:[["armando","Señorita Pinzón, su hoja de vida es impresionante. Empieza mañana.","neutral"],
+     ["betty","¡Gracias, doctor! No lo voy a defraudar.","happy"],
+     ["patricia","¿Y yo qué? ¡Yo también me quedo!","angry"]],
+  e:"Me contrataron. La señorita Patricia también se quedó, y ya me mira como si yo fuera una mancha en la alfombra."},
+ {act:"Acto I · La llegada",
+  s:"Betty empieza a trabajar. En una empresa de moda, nadie quiere tenerla a la vista.",
+  d:[["hugo","Inés, mi valeriana.","surprised",1],
+     ["inesita","Ya se la traigo, don Hugo. Pero no sea así con la muchacha.","sad"],
+     ["mario","Hermano, esa mujer no puede quedar donde la vean los compradores.","neutral"],
+     ["armando","Tranquilo, Mario. Ya sé dónde ponerla.","neutral"]],
+  q:"¿Dónde termina instalada Betty?",
+  a:["En un cuartico estrecho y sin ventana, pegado a la oficina de Armando",
+     "En la recepción, a la entrada de la empresa",
+     "En el taller de costura, junto a las modistas",
+     "En una oficina grande con vista a la ciudad"],
+  r:[["betty","Es pequeñito… pero queda al lado del doctor.","happy"],
+     ["armando","Si necesito algo, Beatriz, la llamo por esta puerta.","neutral"],
+     ["hugo","Flu, flu, voló.","angry",1]],
+  e:"Mi oficina es pequeñita, pero queda al lado de la de él. Desde aquí lo oigo todo."},
+ {act:"Acto I · La llegada",
+  s:"A la hora del almuerzo, un grupo de secretarias se acerca a la nueva.",
+  d:[["bertha","¿Usted es la nueva? Venga con nosotras al corrientazo.","happy"],
+     ["aura","Aquí nos contamos todo, mija. Absolutamente todo.","happy"],
+     ["freddy","Perdóname, pero discúlpame.","angry",1],
+     ["freddy","¿Y a mí nadie me invita al almuerzo?","sad"]],
+  q:"¿Cómo se llama ese grupo de amigas?",
+  a:["El cuartel de las feas","Las chicas Ecomoda","El club de las secretarias","Las amigas de Lombardi"],
+  r:[["sandra","Bienvenida al cuartel de las feas, Betty.","happy"],
+     ["mariana","Ya le leí las cartas: le viene un amor grande.","surprised"],
+     ["betty","¿A mí? Ay, Mariana, no diga eso.","happy"]],
+  e:"Bertha, Sofía, Aura María, Mariana, Sandra e Inesita. Ellas sí me quieren como soy."},
+ {act:"Acto I · La llegada",
+  s:"La junta directiva va a elegir al nuevo presidente de Ecomoda.",
+  d:[["daniel","Ecomoda necesita un presidente serio, no un conquistador de modelos.","angry"],
+     ["armando","Ya veremos qué dice la junta, Daniel.","angry"]],
+  q:"¿Qué ocurre en la votación?",
+  a:["Gana Armando, con una presentación que Betty le ayuda a preparar",
+     "Gana Daniel y despide a Betty en su primer día",
+     "La junta escoge a Marcela como presidenta",
+     "Se aplaza la elección y Ecomoda queda sin presidente"],
+  r:[["betty","Doctor, las cifras de su presentación están listas y revisadas.","neutral"],
+     ["armando","¡Ganamos, Beatriz! Esto también es suyo.","happy"],
+     ["hugo","¡Bombi!","happy",1],
+     ["daniel","Esto no se queda así.","angry"]],
+  e:"El doctor Mendoza es presidente. Yo hice las cifras y él me dio las gracias. A mí."},
+
+ {act:"Acto II · Las cuentas",
+  s:"Los planes de Armando cuestan más de lo que venden. Las deudas crecen.",
+  d:[["betty","Doctor, las deudas ya superan lo que vamos a vender este año.","sad"],
+     ["armando","Si la junta se entera, me sacan. Piense en algo, Beatriz, por favor.","sad"]],
+  q:"¿Qué idean para proteger la empresa?",
+  a:["Crear Terramoda, una empresa fachada a nombre de Betty que respalda a Ecomoda ante los acreedores",
+     "Vender Ecomoda en secreto a una firma extranjera",
+     "Pedirle a Marcela que pague las deudas con su herencia",
+     "Cerrar la fábrica y despedir a la mitad del personal"],
+  r:[["betty","Se llamará Terramoda. Legalmente, quedaría a mi nombre.","neutral"],
+     ["armando","Confío en usted más que en nadie.","happy"]],
+  e:"Ante la ley, Ecomoda está respaldada por una empresa a mi nombre. Qué responsabilidad tan grande."},
+ {act:"Acto II · Las cuentas",
+  s:"Terramoda necesita a alguien que la maneje por fuera de Ecomoda.",
+  d:[["betty","Necesito a alguien que sepa de números… y que jamás me traicione.","neutral"]],
+  q:"¿A quién recurre Betty?",
+  a:["A Nicolás Mora, su mejor amigo de toda la vida",
+     "A Freddy, el mensajero",
+     "A Mario Calderón, el amigo de Armando",
+     "A su papá, don Hermes"],
+  r:[["nicolas","Betty, usted sabe que por usted hago lo que sea. Eso sí, con buenos números.","happy"],
+     ["betty","Gracias, Nicolás. Sabía que podía contar con usted.","happy"]],
+  e:"Nicolás no entiende de moda, pero de números sí. Y jamás me traicionaría."},
+ {act:"Acto II · Las cuentas",
+  s:"Se acerca la reunión de la junta directiva. Los socios quieren ver cifras.",
+  d:[["patricia","Ay, Marce… la pobreza me está respirando en la nuca.","sad",1],
+     ["marcela","Ahora no, Patricia. Quiero los estados financieros completos en la próxima junta.","angry"],
+     ["armando","Beatriz, necesito que esas cifras se vean… tranquilas.","neutral"]],
+  q:"¿Qué hace Betty?",
+  a:["Prepara informes maquillados para que la junta no vea la crisis",
+     "Le cuenta toda la verdad a Daniel Valencia",
+     "Renuncia para no meterse en problemas",
+     "Le entrega los libros contables a un auditor externo"],
+  r:[["betty","Listo, doctor. Según el informe, todo va muy bien.","sad"],
+     ["hermes","Mija, ¿y esa cara? Cuidado, que el diablo es puerco.","angry",1]],
+  e:"Hice el informe que el doctor me pidió. No me siento bien con lo que firmé."},
+
+ {act:"Acto III · El engaño",
+  s:"Armando se da cuenta de que, en el papel, Betty podría quedarse con todo.",
+  d:[["armando","Mario, ella podría quedarse con Ecomoda si quisiera.","sad"],
+     ["mario","Entonces hay que asegurarse de que nunca quiera, hermano.","happy"]],
+  q:"¿Qué le propone Mario?",
+  a:["Que Armando enamore a Betty",
+     "Que la despidan cuanto antes",
+     "Que le suban el sueldo y le den acciones",
+     "Que pongan a Patricia a vigilarla"],
+  r:[["mario","Enamórala. Una mujer enamorada no traiciona.","happy"],
+     ["armando","¿Tú estás loco? ¿A Betty?","surprised"]],
+  e:"El doctor está tan amable conmigo últimamente… (lo escribí sin saber nada todavía)."},
+ {act:"Acto III · El engaño",
+  s:"Armando empieza a cortejar a Betty: flores, invitaciones, palabras que le cuesta decir.",
+  d:[["armando","Beatriz, ¿me acepta una comida esta noche? Solo usted y yo.","happy"],
+     ["betty","¿Yo, doctor? ¿Está seguro?","surprised"]],
+  q:"¿Cómo reacciona Betty?",
+  a:["Se enamora perdidamente y lo escribe todo en su diario",
+     "Sospecha desde el primer día y lo denuncia",
+     "Le dice que está enamorada de Nicolás",
+     "Le cuenta todo a Marcela"],
+  r:[["betty","No lo puedo creer… me besó. A mí.","happy"],
+     ["mariana","¡Se lo dije! Las cartas no mienten.","happy"]],
+  e:"Me besó. A mí. Beatriz Pinzón Solano."},
+ {act:"Acto III · El engaño",
+  s:"Pasan los meses y algo cambia dentro de Armando.",
+  d:[["mario","¿Y qué, hermano? ¿Cómo va el plan?","happy"],
+     ["armando","No me preguntes por el plan, Mario.","sad"]],
+  q:"¿Qué le ocurre a Armando?",
+  a:["Se enamora de verdad de Betty, pero no se atreve a confesarle cómo empezó todo",
+     "Se aburre del plan y vuelve solo con Marcela",
+     "Se enamora de Patricia",
+     "Vende su parte de Ecomoda y se va de viaje"],
+  r:[["armando","Lo que siento por ella ya no es ningún plan.","sad"],
+     ["mario","No me digas que te enamoraste de verdad.","surprised"]],
+  e:"Hoy el doctor me miró distinto. Como si tuviera miedo de algo."},
+ {act:"Acto III · El engaño",
+  s:"Un día, en la oficina de presidencia, Betty encuentra algo que no debía ver.",
+  d:[["betty","El doctor dejó sus cosas aquí… hay un papel con mi nombre.","surprised"]],
+  q:"¿Cómo descubre Betty el engaño?",
+  a:["Lee una carta de Mario Calderón a Armando con instrucciones para conquistarla",
+     "Patricia se lo grita en medio de una fiesta",
+     "Su papá lo descubre y se lo cuenta",
+     "Armando se lo confiesa en una cena"],
+  r:[["betty","Es la letra de don Mario… Todo era mentira.","sad"]],
+  e:"Todo era mentira. Cada flor, cada palabra."},
+
+ {act:"Acto IV · La caída",
+  s:"Con el corazón roto, Betty tiene las cuentas reales de Ecomoda. Se acerca otra junta.",
+  d:[["armando","Beatriz, déjeme explicarle, por favor.","sad"],
+     ["betty","Ya no hay nada que explicar, doctor.","angry"]],
+  q:"¿Qué decide hacer?",
+  a:["Presentar ante la junta el informe verdadero de la empresa y renunciar",
+     "Seguir maquillando las cifras como si nada",
+     "Quedarse con Ecomoda por medio de Terramoda y echar a Armando",
+     "Desaparecer sin decirle nada a nadie"],
+  r:[["betty","Señores de la junta: estas son las cifras reales de Ecomoda.","neutral"],
+     ["daniel","¡Armando, nos engañaste a todos!","angry"],
+     ["patricia","Y llegaron los meseros.","surprised",1],
+     ["marcela","¿Cómo pudiste, Armando?","sad"]],
+  e:"Dije la verdad, toda la verdad. Después recogí mis cosas del cuartico."},
+ {act:"Acto IV · La caída",
+  s:"Betty necesita alejarse de Bogotá.",
+  d:[["catalina","Betty, necesito a alguien de confianza para un evento grande. ¿Te animas a viajar?","happy"],
+     ["betty","Necesito irme lejos de aquí, doña Catalina.","sad"]],
+  q:"¿A dónde se va Betty?",
+  a:["A Cartagena, a trabajar con Catalina en el Concurso Nacional de Belleza",
+     "A París, a estudiar diseño de modas",
+     "A Miami, como gerente de una tienda",
+     "A Medellín, a vivir con unos tíos"],
+  r:[["catalina","Bienvenida a Cartagena. Aquí vas a empezar de nuevo.","happy"],
+     ["betty","Nunca había visto tanto mar.","surprised"]],
+  e:"El mar. Nunca había visto tanto azul."},
+ {act:"Acto IV · La caída",
+  s:"En Cartagena, lejos de las burlas, Betty empieza a mirarse distinto.",
+  d:[["catalina","¿Y si probamos algo distinto con tu pelo… y con esas gafas?","happy"],
+     ["betty","¿Usted cree que yo puedo verme… bonita?","surprised"]],
+  q:"¿Qué pasa con Betty allí?",
+  a:["Con ayuda de Catalina cambia su imagen y conoce a Michel Doinel, que se enamora de ella",
+     "Se queda trabajando en un hotel y olvida Ecomoda para siempre",
+     "Se reconcilia con Armando por teléfono",
+     "Gana el reinado de belleza"],
+  r:[["betty2","¿Esa… soy yo?","surprised"],
+     ["michel","Mademoiselle, ¿me permite invitarla a cenar?","happy"],
+     ["betty2","Tan divino.","happy",1]],
+  e:"Me quité las gafas, me arreglé el pelo… y alguien me miró como si yo fuera bonita desde siempre."},
+
+ {act:"Acto V · El regreso",
+  s:"Ecomoda está al borde de la quiebra. Y la dueña de Terramoda sigue siendo Betty.",
+  d:[["patricia","Soy una mujer pobre disfrazada de rica.","sad",1],
+     ["armando","Ecomoda se hunde y ya no sé qué hacer.","sad"],
+     ["nicolas","Los acreedores solo confían en una persona: en Betty.","neutral"]],
+  q:"¿Qué hace Betty al volver a Bogotá?",
+  a:["Asume la presidencia de Ecomoda para sacarla adelante",
+     "Vende Terramoda y se va a vivir a Francia",
+     "Le regala la empresa a Daniel Valencia",
+     "Abre su propia marca de ropa para competir"],
+  r:[["betty2","Vengo a salvar Ecomoda. Y esta vez, con cuentas claras.","neutral"],
+     ["bertha","¡Volvió Betty, y volvió divina!","happy"],
+     ["hugo","Bueno… hasta yo tengo que admitirlo. ¡Bombi!","surprised",1]],
+  e:"Ya no soy la secretaria del cuartico. Soy la presidenta. Y voy a salvar esta empresa."},
+ {act:"Acto V · El regreso",
+  s:"Armando lucha por demostrar que su amor es real. Michel también espera una respuesta.",
+  d:[["michel","Beatriz, si decides venir conmigo, te espero.","sad"],
+     ["armando","Betty, todo empezó mal, pero lo que siento es verdad. Déjeme demostrárselo.","sad"]],
+  q:"¿Cómo termina la historia de Betty y Armando?",
+  a:["Betty perdona a Armando y se casan",
+     "Betty se va con Michel a Francia",
+     "Armando se casa con Marcela",
+     "Betty se queda sola al frente de Ecomoda"],
+  r:[["betty2","Sí, Armando. Sí acepto.","happy"],
+     ["hermes","Cuídeme a mi hija, doctor Mendoza, que el diablo es puerco.","angry",1],
+     ["julia","¡Ay, Hermes, deja al muchacho en paz!","happy"]],
+  e:"Hoy me casé. Y esta vez sí es verdad."}
+];
+
+/* ================= Páginas entre fases ================= */
+const LETTER = `Armando:
+
+Como no me haces caso cuando te hablo, te lo dejo por escrito. Ya sé que esto te cuesta, hermano, pero acuérdate de lo que está en juego: Ecomoda entera depende de Terramoda, y Terramoda depende de ella.
+
+Así que sigue el plan al pie de la letra:
+
+1. Flores, sin falta. Que lleguen a su escritorio y que todo el mundo las vea.
+2. Una tarjeta con cada ramo. Si no se te ocurre qué escribir, yo te dicto.
+3. Invítala a comer, pero a sitios donde no te encuentres con nadie conocido.
+4. Si te pregunta por Marcela, cambia de tema.
+5. Nunca, por ningún motivo, dejes que note que lo haces por obligación.
+
+Aguanta, hermano. Cuando la empresa esté a salvo, ya veremos cómo sales de esto.
+
+Tu amigo,
+Mario`;
+
+const INTER = {
+  3:[{type:"diary", date:"Bogotá, viernes por la noche", mood:"happy", fig:"betty",
+      text:`Querido diario:
+Terminó mi primera semana en Ecomoda. Mi oficina es un cuartico sin ventana, don Hugo pidió su valeriana apenas me vio, y Patricia me recordó tres veces sus seis semestres en la San Marino.
+Pero el doctor Armando ganó la presidencia, y en su presentación estaban mis números.
+Las muchachas del cuartel dicen que no me haga ilusiones. Yo no me hago ilusiones. Solo escribo su nombre en la margen del cuaderno, sin querer.`}],
+  6:[{type:"diary", date:"Bogotá, domingo, casi medianoche", mood:"sad", fig:"betty",
+      text:`Querido diario:
+Hoy firmé papeles que no debí firmar. Terramoda existe y está a mi nombre.
+Nicolás dice que los números no mienten, pero que la gente sí.
+En la comida, mi papá me miró por encima del periódico y me dijo que el diablo es puerco. ¿Sabrá algo? No. Pero yo sí sé, y no puedo dormir.`}],
+  10:[{type:"letter"},
+      {type:"diary", date:"Bogotá, la peor noche", mood:"sad", fig:"betty",
+      text:`Querido diario:
+Todo estaba en un papel, con la letra de don Mario. Cada flor, cada invitación, cada palabra bonita, con instrucciones.
+Y yo, tan boba, creyendo.`,
+      quote:{t:"De nuevo la vida me dice que el amor no es para mí.", s:"unotv"}}],
+  13:[{type:"diary", date:"Cartagena, frente al mar", mood:"happy", fig:"betty2",
+      text:`Querido diario:
+Hoy me miré al espejo y alguien me sonrió desde adentro. Catalina dice que la belleza siempre estuvo ahí, que solo faltaba dejarla salir.
+Michel me invitó a cenar y me habló de París. Tan divino…
+Pero cuando cierro los ojos todavía veo una puerta: la del cuartico, la que daba a la oficina de presidencia.`}],
+  15:[{type:"diary", date:"Bogotá, la última página", mood:"happy", fig:"betty2",
+      text:`Querido diario:
+Esta es la última página de este cuaderno.
+Ecomoda tiene las cuentas claras, el cuartel lloró en la boda más que mi mamá, y mi papá vigiló a Armando toda la fiesta.
+Aprendí que nadie le puede decir a uno lo que vale. Ni un espejo, ni una carta, ni un cuaderno.
+Gracias por escucharme todos estos años.`}]
+};
+
+const RANKS = [
+  {min:0,  t:"Recién llegada al cuartico", d:"Todavía te pierdes en los pasillos de Ecomoda. Vuelve a ver la novela con un cuaderno al lado.", k:"betty", m:"sad"},
+  {min:6,  t:"Integrante del cuartel", d:"Conoces el chisme, pero se te escapan detalles. Bertha estaría orgullosa a medias.", k:"bertha", m:"happy"},
+  {min:10, t:"Secretaria de presidencia", d:"Sabes casi todo lo que pasa detrás de la puerta de Armando.", k:"betty", m:"happy"},
+  {min:14, t:"Presidenta de Ecomoda", d:"Dominas la historia de punta a punta. Terramoda está en buenas manos.", k:"betty2", m:"happy"},
+  {min:16, t:"Beatriz Aurora Pinzón Solano", d:"Perfecto. Lo sabes todo, como si lo hubieras escrito en el diario tú misma.", k:"betty2", m:"happy"}
+];
+
+/* ================= Motor de texto que se escribe solo ================= */
+const app = document.getElementById("app");
+let st = {view:"intro", i:0, score:0, picked:null, order:[], log:[], qi:0};
+let token = 0, skip = false;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const getBest = () => { try { return +localStorage.getItem("betty-best") || 0 } catch(e){ return 0 } };
+const setBest = v => { try { if (v > getBest()) localStorage.setItem("betty-best", v) } catch(e){} };
+const shuffle = n => { const a=[...Array(n).keys()]; for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]} return a };
+const STAR = `<span class="star">★ Frase de la novela</span>`;
+
+async function typeInto(el, text, my, speed=26){
+  el.classList.add("caret");
+  for (let i = 1; i <= text.length; i++){
+    if (skip || my !== token) break;
+    el.textContent = text.slice(0, i);
+    const c = text[i-1];
+    await sleep(/[.!?…]/.test(c) ? 230 : /[,:;\n]/.test(c) ? 120 : speed);
+  }
+  el.textContent = text;
+  el.classList.remove("caret");
+}
+
+function sides(lines){ const s = {}; let n = 0; lines.forEach(([k]) => { const b = k.replace(/2$/,""); if (!(b in s)) s[b] = (n++) % 2; }); return s; }
+function lineHTML(k, m, star, side, text, talk){
+  return `<div class="ln ${side ? "r" : ""}">${fig(k, m, talk ? "talk" : "")}<div class="bub"><span class="who">${esc(CAST_NAME(k))}</span><span class="tx">${text}</span>${star ? STAR : ""}</div></div>`;
+}
+function staticDialogue(lines, cls=""){
+  const s = sides(lines);
+  return `<div class="dlg ${cls}">${lines.map(([k,t,m,star]) => lineHTML(k, m, star, s[k.replace(/2$/,"")], esc(t))).join("")}</div>`;
+}
+async function playDialogue(box, lines, my){
+  const s = sides(lines);
+  for (const [k,t,m,star] of lines){
+    if (my !== token) return false;
+    const side = s[k.replace(/2$/,"")];
+    if (!skip){
+      box.insertAdjacentHTML("beforeend", lineHTML(k, m, 0, side, `<span class="typing" aria-label="escribiendo"><i></i><i></i><i></i></span>`, 0));
+      await sleep(520);
+      if (my !== token) return false;
+      box.lastElementChild.remove();
+    }
+    box.insertAdjacentHTML("beforeend", lineHTML(k, m, star, side, "", 1));
+    const ln = box.lastElementChild, f = ln.querySelector(".fig"), tx = ln.querySelector(".tx");
+    ln.scrollIntoView?.({block:"nearest", behavior: skip ? "auto" : "smooth"});
+    await typeInto(tx, t, my);
+    f.classList.remove("talk");
+    if (!skip) await sleep(320);
+  }
+  return my === token;
+}
+
+/* ================= Vistas ================= */
+function render(){
+  token++; skip = false;
+  if (st.view === "intro") return renderIntro();
+  if (st.view === "game") return renderGame();
+  if (st.view === "inter") return renderInter();
+  if (st.view === "frases") return renderFrases();
+  renderEnd();
+}
+
+function credits(){
+  const main = Object.keys(CAST).filter(k => CAST[k].a);
+  return `<section class="credits" aria-labelledby="cred-h">
+    <h2 id="cred-h">Créditos</h2>
+    <dl>
+      <dt>Telenovela original</dt><dd><i>Yo soy Betty, la fea</i></dd>
+      <dt>Creación y libretos</dt><dd>Fernando Gaitán</dd>
+      <dt>Producción</dt><dd>RCN Televisión, Colombia</dd>
+      <dt>Emisión original</dt><dd>1999–2001</dd>
+      <dt>Elenco</dt><dd>${main.map(k => `${esc(CAST[k].a)} (${esc(CAST[k].n.replace(/^(Don|Doña) /,""))})`).join(", ")}</dd>
+      <dt>Frases célebres</dt><dd>Citas breves de la novela marcadas con ★, recopiladas de ${Object.values(SRC).filter(s=>s!==SRC.sensacine).map(s => `<a href="${s.u}" target="_blank" rel="noopener">${esc(s.t.split(" · ")[0])}</a>`).join(", ")}.</dd>
+      <dt>Este juego</dt><dd>Homenaje de fans, sin fines comerciales ni afiliación con RCN Televisión. El resto de los diálogos, las páginas del diario y la carta de Mario son recreaciones escritas para el juego, no textos de la novela.</dd>
+    </dl>
+  </section>`;
+}
+
+function renderIntro(){
+  const best = getBest();
+  const main = Object.keys(CAST).filter(k => !CAST[k].hide);
+  app.innerHTML = `
+  <section class="intro">
+    ${installTip()}
+    <div class="lineup" aria-hidden="true">${["hugo","patricia","marcela","armando","mario","nicolas","freddy","catalina","michel"].map((k,i)=>fig(k, i%3===0?"happy":"neutral")).join("")}</div>
+    <div class="hero-say">${fig("betty","happy","talk")}<div class="bub"><span class="who">Betty</span><span class="tx" id="hello"></span></div></div>
+    <p>Recorre la novela escena por escena. Los personajes conversan, tú eliges qué pasa después y luego ves cómo sucedió. Entre un acto y otro, lees páginas del diario de Betty. Son ${QS.length} escenas, desde la llegada a Ecomoda hasta el final.</p>
+    <div class="cta-row">
+      <button class="btn" id="start">Empezar a jugar</button>
+      <button class="btn ghost" id="frases">Frases célebres</button>
+      ${best ? `<span class="best">Tu mejor marca: ${best} de ${QS.length}</span>` : ""}
+    </div>
+    <h2>El reparto</h2>
+    <div class="cast">
+      ${main.map(k => `<div class="person"><div class="pic">${fig(k,"neutral")}</div>
+          <div><h3>${esc(CAST[k].full)}</h3><span class="actor">Interpretado por ${esc(CAST[k].a)}</span><p>${esc(CAST[k].d)}</p></div></div>`).join("")}
+      <div class="person"><div class="pic group">${["bertha","aura","sandra","mariana"].map(k=>fig(k,"happy")).join("")}</div>
+        <div><h3>El cuartel de las feas</h3><p>Bertha, Aura María, Sandra, Mariana, Sofía e Inesita: chismosas y leales.</p></div></div>
+    </div>
+    ${credits()}
+  </section>`;
+  document.getElementById("start").onclick = start;
+  document.getElementById("frases").onclick = () => { st.view = "frases"; render(); window.scrollTo({top:0}); };
+  const my = token, hello = document.getElementById("hello");
+  typeInto(hello, "¡Hola! Soy Beatriz Pinzón Solano. ¿Me acompaña a Ecomoda? Usted decide qué pasa después.", my, 34)
+    .then(() => hello.closest(".hero-say")?.querySelector(".fig")?.classList.remove("talk"));
+}
+
+function start(){
+  st = {view:"game", i:0, score:0, picked:null, order:shuffle(4), log:[], qi:0};
+  render(); window.scrollTo({top:0});
+}
+
+function hud(){
+  const done = st.view !== "game" || st.picked !== null;
+  const pct = ((st.i + (done?1:0)) / QS.length) * 100;
+  return `<div class="hud">
+    <span>Escena <b>${st.i+1}</b> de ${QS.length}</span>
+    <div class="bar" aria-hidden="true"><i style="width:${pct}%"></i></div>
+    <span>Aciertos <b>${st.score}</b></span>
+  </div>`;
+}
+
+function optsHTML(q, done){
+  return st.order.map((ai, pos) => {
+    let cls = "";
+    if (done){ cls = ai===0 ? "right" : ai===st.picked ? "wrong" : "dim"; }
+    return `<button class="opt ${cls}" id="opt-${pos}" data-a="${ai}" ${done?"disabled":""}><span class="k">${"ABCD"[pos]}</span><span>${esc(q.a[ai])}</span></button>`;
+  }).join("");
+}
+
+function renderGame(){
+  const q = QS[st.i], done = st.picked !== null, my = token;
+  app.innerHTML = `${hud()}
+  <article class="scene">
+    <div class="scene-top"><span class="act">${esc(q.act)}</span><button class="btn ghost small" id="skip">Saltar diálogo</button></div>
+    <p class="situ">${esc(q.s)}</p>
+    ${done ? staticDialogue(q.d) : `<div class="dlg" id="dlgA"></div>`}
+    <div class="qbox" id="qbox" ${done ? "" : "hidden"}>
+      <p class="q">${esc(q.q)}</p>
+      <div class="opts">${optsHTML(q, done)}</div>
+    </div>
+    ${done ? `
+    <div class="diary">
+      <span class="verdict ${st.picked===0?"ok":"no"}">${st.picked===0 ? "¡Exacto! Así pasó en la novela." : "No fue así. Mira lo que pasó:"}</span>
+      <div class="dlg after" id="dlgB"></div>
+      <div id="after" hidden>
+        <p class="note">${esc(q.e)}</p>
+        <div class="next-row"><button class="btn" id="next">${INTER[st.i] ? "Abrir el diario de Betty" : st.i+1 < QS.length ? "Siguiente escena" : "Ver mi resultado"}</button></div>
+      </div>
+    </div>` : ""}
+  </article>`;
+  const skipBtn = document.getElementById("skip");
+  skipBtn.onclick = () => { skip = true; };
+  if (!done){
+    playDialogue(document.getElementById("dlgA"), q.d, my).then(ok => {
+      if (!ok) return;
+      skipBtn.hidden = true;
+      const qb = document.getElementById("qbox"); qb.hidden = false;
+      qb.querySelectorAll(".opt").forEach(b => b.onclick = () => pick(+b.dataset.a));
+      qb.scrollIntoView?.({block:"nearest", behavior:"smooth"});
+    });
+  } else {
+    playDialogue(document.getElementById("dlgB"), q.r, my).then(ok => {
+      if (!ok) return;
+      skipBtn.hidden = true;
+      document.getElementById("after").hidden = false;
+      const n = document.getElementById("next"); n.onclick = next; n.focus({preventScroll:true});
+      n.scrollIntoView?.({block:"nearest", behavior:"smooth"});
+    });
+  }
+}
+
+function pick(a){
+  st.picked = a;
+  if (a === 0) st.score++;
+  st.log.push(a === 0);
+  render();
+  document.querySelector(".diary")?.scrollIntoView({behavior:"smooth", block:"start"});
+}
+function next(){
+  if (st.view === "game" && INTER[st.i]){ st.view = "inter"; st.qi = 0; render(); window.scrollTo({top:0}); return; }
+  advance();
+}
+function advance(){
+  if (st.i + 1 >= QS.length){ st.view = "end"; setBest(st.score); }
+  else { st.view = "game"; st.i++; st.picked = null; st.order = shuffle(4); }
+  render(); window.scrollTo({top:0});
+}
+
+function renderInter(){
+  const list = INTER[st.i], it = list[st.qi], my = token, last = st.qi + 1 >= list.length;
+  const cont = last ? (st.i + 1 >= QS.length ? "Ver mi resultado" : "Seguir con la novela") : "Seguir leyendo";
+  if (it.type === "letter"){
+    app.innerHTML = `${hud()}
+    <section class="inter">
+      <span class="act">${esc(QS[st.i].act)} · Lo que Betty encontró</span>
+      <div class="inter-head">${fig("betty","surprised")}<div class="bub"><span class="who">Betty</span>Esta es la letra de don Mario…</div></div>
+      <article class="letter" aria-label="Carta de Mario Calderón a Armando Mendoza">
+        <div class="memo"><span>De: Mario Calderón</span><span>Para: Armando Mendoza</span><span>Confidencial</span></div>
+        <p class="body" id="txt"></p>
+      </article>
+      <p class="credit-note">Recreación escrita para este juego. En la novela, la carta la escribe Mario Calderón a Armando y Betty la encuentra. El texto original, de Fernando Gaitán, se puede leer en <a href="${SRC.sensacine.u}" target="_blank" rel="noopener">SensaCine</a>.</p>
+      <div class="next-row"><button class="btn ghost small" id="skip">Mostrar todo</button> <button class="btn" id="cont" hidden>${cont}</button></div>
+    </section>`;
+    wireInter(LETTER, my, 18);
+  } else {
+    app.innerHTML = `${hud()}
+    <section class="inter">
+      <span class="act">${esc(QS[st.i].act)} · Del diario de Betty</span>
+      <article class="page" aria-label="Página del diario de Betty">
+        <div class="writer">${fig(it.fig, it.mood, "write")}</div>
+        <p class="date">${esc(it.date)}</p>
+        <p class="entry" id="txt"></p>
+      </article>
+      ${it.quote ? `<div class="quote" id="quote" hidden><p>«${esc(it.quote.t)}»</p><small>★ Frase del diario de Betty en la novela · Fuente: <a href="${SRC[it.quote.s].u}" target="_blank" rel="noopener">${esc(SRC[it.quote.s].t)}</a></small></div>` : ""}
+      <div class="next-row"><button class="btn ghost small" id="skip">Mostrar todo</button> <button class="btn" id="cont" hidden>${cont}</button></div>
+    </section>`;
+    wireInter(it.text, my, 30);
+  }
+}
+function wireInter(text, my, speed){
+  const sk = document.getElementById("skip"), cont = document.getElementById("cont");
+  sk.onclick = () => { skip = true; };
+  cont.onclick = () => { st.qi++; if (st.qi < INTER[st.i].length){ render(); window.scrollTo({top:0}); } else advance(); };
+  typeInto(document.getElementById("txt"), text, my, speed).then(() => {
+    if (my !== token) return;
+    document.querySelector(".writer .fig")?.classList.remove("write");
+    const q = document.getElementById("quote"); if (q) q.hidden = false;
+    sk.hidden = true; cont.hidden = false; cont.focus({preventScroll:true});
+  });
+}
+
+function renderFrases(){
+  app.innerHTML = `
+  <section class="frases">
+    <div class="cta-row"><button class="btn ghost small" id="back">← Volver</button></div>
+    <h2>Frases célebres</h2>
+    <p class="credit-note">Las frases que el público todavía repite, cada una con su personaje y la fuente donde aparece. Toca una tarjeta para que el bonequito la diga.</p>
+    <div class="qgrid">
+      ${FRASES.map((f,i) => `<button class="quote-card" id="fr-${i}" data-i="${i}">${fig(f.k, f.m)}
+        <div><div class="qt">«${esc(f.t)}»</div>
+        <div class="by">${esc(CAST[f.k].full || CAST[f.k].n)}${CAST[f.k].a ? ` · ${esc(CAST[f.k].a)}` : f.term ? " · todo Ecomoda" : ""}</div>
+        <div class="cx">${esc(f.c)}</div></div></button>`).join("")}
+    </div>
+    <h3>Fuentes</h3>
+    <ul class="sources">${Object.values(SRC).map(s => `<li><a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a></li>`).join("")}</ul>
+  </section>`;
+  document.getElementById("back").onclick = () => { st.view = st.log.length && st.i + 1 >= QS.length && st.picked !== null ? "end" : "intro"; render(); window.scrollTo({top:0}); };
+  app.querySelectorAll(".quote-card").forEach(b => b.onclick = async () => {
+    const f = FRASES[+b.dataset.i], qt = b.querySelector(".qt"), fg = b.querySelector(".fig");
+    const my = token; skip = false;
+    fg.classList.add("talk");
+    qt.textContent = "";
+    await typeInto(qt, `«${f.t}»`, my, 45);
+    fg.classList.remove("talk");
+  });
+}
+
+function renderEnd(){
+  const r = [...RANKS].reverse().find(r => st.score >= r.min);
+  app.innerHTML = `
+  <section class="end">
+    <span class="eyebrow">Fin de la novela</span>
+    <div class="end-top">${fig(r.k, r.m)}<div class="big">${st.score}<small> / ${QS.length}</small></div></div>
+    <div class="rank"><h2>${esc(r.t)}</h2><p>${esc(r.d)}</p></div>
+    <ul class="review">
+      ${QS.map((q,i) => `<li><b class="${st.log[i]?"y":"n"}">${st.log[i]?"✓":"✗"}</b><span>${esc(q.q)} <i style="color:var(--muted)">${esc(q.a[0])}</i></span></li>`).join("")}
+    </ul>
+    <div class="cta-row">
+      <button class="btn" id="again">Jugar otra vez</button>
+      <button class="btn ghost" id="frases">Frases célebres</button>
+      <button class="btn ghost" id="home">Ver el reparto</button>
+    </div>
+    ${credits()}
+  </section>`;
+  document.getElementById("again").onclick = start;
+  document.getElementById("frases").onclick = () => { st.view = "frases"; render(); window.scrollTo({top:0}); };
+  document.getElementById("home").onclick = () => { st.view = "intro"; render(); };
+}
+
+
+/* ================= App instalable (PWA) ================= */
+let installEvt = null;
+const IS_PHONE = matchMedia("(pointer:coarse)").matches && Math.min(screen.width, screen.height) < 820;
+const IS_APP = () => matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
+const UA = navigator.userAgent;
+const IS_IOS = /iPhone|iPad|iPod/.test(UA) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const IN_APP_BROWSER = /FBAN|FBAV|Instagram|WhatsApp|Line\/|TikTok|Snapchat|; wv\)/.test(UA);
+const IOS_NOT_SAFARI = IS_IOS && /CriOS|FxiOS|EdgiOS|OPiOS/.test(UA);
+
+function installTip(){ return ""; }
+
+function renderGate(done){
+  document.body.classList.add("gated");
+  let steps;
+  if (done) steps = `<p class="warn"><b>¡Listo!</b> Busca el ícono de Betty en tu pantalla de inicio y abre el juego desde ahí.</p>`;
+  else if (IN_APP_BROWSER || IOS_NOT_SAFARI) steps = `<p class="warn">Este navegador no permite instalar apps. Copia el enlace y ábrelo en <b>${IS_IOS ? "Safari" : "Chrome"}</b>.</p>
+      <div class="cta-row"><button class="btn" id="copy">Copiar enlace</button></div>`;
+  else if (IS_IOS) steps = `<ol><li>Toca <kbd>Compartir</kbd>, el cuadrado con la flecha hacia arriba.</li><li>Baja y elige <kbd>Agregar a pantalla de inicio</kbd>.</li><li>Toca <kbd>Agregar</kbd> y abre el juego desde el ícono de Betty.</li></ol>`;
+  else steps = `${installEvt ? `<div class="cta-row"><button class="btn" id="install">Instalar el juego</button></div><p class="situ">O desde el menú:</p>` : ""}
+      <ol><li>Toca el menú <kbd>⋮</kbd> arriba a la derecha.</li><li>Elige <kbd>Instalar app</kbd> o <kbd>Agregar a pantalla principal</kbd>.</li><li>Abre el juego desde el ícono de Betty.</li></ol>`;
+  app.innerHTML = `<section class="gate">
+    <div class="hero-say">${fig("betty", done ? "happy" : "neutral", "talk")}<div class="bub"><span class="who">Betty</span><span class="tx" id="gsay"></span></div></div>
+    <h2>Instala el juego para jugar</h2>
+    <p>En el celular, <i>¿Y ahora qué, Betty?</i> se juega como una app: pantalla completa, con su propio ícono y sin conexión.</p>
+    ${steps}
+  </section>`;
+  const my = ++token; skip = false;
+  typeInto(document.getElementById("gsay"), done ? "¡Tan divino! Ya estoy en tu pantalla de inicio." : "Para entrar a Ecomoda, primero llévame a tu pantalla de inicio.", my, 32)
+    .then(() => app.querySelector(".gate .fig")?.classList.remove("talk"));
+  const ib = document.getElementById("install");
+  if (ib) ib.onclick = async () => { installEvt.prompt(); const r = await installEvt.userChoice; installEvt = null; if (r.outcome === "accepted") renderGate(true); else renderGate(false); };
+  const cb = document.getElementById("copy");
+  if (cb) cb.onclick = async () => { try { await navigator.clipboard.writeText(location.href); cb.textContent = "Enlace copiado"; } catch(e){ cb.textContent = location.href; } };
+}
+
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; if (IS_PHONE && !IS_APP()) renderGate(false); });
+window.addEventListener("appinstalled", () => { if (IS_PHONE && !IS_APP()) renderGate(true); });
+matchMedia("(display-mode: standalone)").addEventListener?.("change", () => location.reload());
+if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("./sw.js").catch(() => {});
+
+window.claude?.hot?.snapshot?.(() => st);
+const boot = data => { if (data && data.view) st = Object.assign({qi:0}, data); render(); };
+if (IS_PHONE && !IS_APP()) renderGate(false);
+else window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+</script>
+
+</body>
+</html>
